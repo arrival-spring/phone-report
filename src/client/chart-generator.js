@@ -10,9 +10,6 @@ function getAxisColour() {
 function updateCharts(days) {
     if (!chartData) return;
 
-    const axisColour = getAxisColour();
-    const semiTransparentGridColour = axisColour + '40';
-
     const allData = REPORT_COUNTRY_KEY === 'ALL' ? chartData.countries : chartData.divisions;
     const regionKeys = Object.keys(allData);
 
@@ -28,15 +25,43 @@ function updateCharts(days) {
 
     const labels = sortedLabels.filter(date => new Date(date) >= startDate);
 
-    const colours = generateColours(regionKeys.length);
+    // If charts exist, update them
+    if (progressChart && progressChartPercent) {
+        progressChart.data.labels = labels;
+        progressChartPercent.data.labels = labels;
 
-    // Destroy existing charts if they exist
-    if (progressChart) {
-        progressChart.destroy();
+        progressChart.data.datasets.forEach((dataset, index) => {
+            const regionKey = regionKeys[index];
+            const regionHistory = allData[regionKey];
+            const dataPoints = labels.map(date => {
+                const entry = regionHistory.find(d => d.date === date);
+                return entry ? entry.invalidCount : null;
+            });
+            dataset.data = dataPoints;
+        });
+
+        progressChartPercent.data.datasets.forEach((dataset, index) => {
+            const regionKey = regionKeys[index];
+            const regionHistory = allData[regionKey];
+            const dataPoints = labels.map(date => {
+                const entry = regionHistory.find(d => d.date === date);
+                if (entry && entry.totalNumbers > 0) {
+                    return ((entry.invalidCount / entry.totalNumbers) * 100).toFixed(2);
+                }
+                return null;
+            });
+            dataset.data = dataPoints;
+        });
+
+        progressChart.update();
+        progressChartPercent.update();
+        return;
     }
-    if (progressChartPercent) {
-        progressChartPercent.destroy();
-    }
+
+    // --- Otherwise, create the charts for the first time ---
+    const axisColour = getAxisColour();
+    const semiTransparentGridColour = axisColour + '40';
+    const colours = generateColours(regionKeys.length);
 
     // Chart for raw counts
     const ctxCount = document.getElementById('progressChart').getContext('2d');
@@ -129,6 +154,7 @@ function updateCharts(days) {
         }
     });
 }
+
 
 document.addEventListener('DOMContentLoaded', () => {
     const timeRangeSlider = document.getElementById('timeRange');
