@@ -159,17 +159,33 @@ function updateCharts(days) {
 document.addEventListener('DOMContentLoaded', () => {
     const timeRangeSlider = document.getElementById('timeRange');
     const rangeValueLabel = document.getElementById('rangeValue');
+    const rangeMaxLabel = document.getElementById('rangeMax');
 
     fetch('./history-data.json')
         .then(response => response.json())
         .then(data => {
             chartData = data;
+
+            const allData = REPORT_COUNTRY_KEY === 'ALL' ? data.countries : data.divisions;
+            const allDates = new Set();
+            Object.values(allData).forEach(regionArray => {
+                regionArray.forEach(d => allDates.add(d.date));
+            });
+            const sortedDates = Array.from(allDates).sort();
+            const minDate = new Date(sortedDates[0]);
+            const maxDate = new Date(sortedDates[sortedDates.length - 1]);
+            const maxDays = Math.ceil((maxDate - minDate) / (1000 * 60 * 60 * 24));
+
+            timeRangeSlider.max = maxDays;
+            timeRangeSlider.value = maxDays > 90 ? 90 : maxDays;
+            rangeMaxLabel.textContent = `${maxDays} days`;
+
             updateCharts(timeRangeSlider.value); // Initial chart generation
 
             timeRangeSlider.addEventListener('input', () => {
                 const days = timeRangeSlider.value;
-                if (days == 365) {
-                    rangeValueLabel.textContent = '1 year';
+                 if (days == maxDays) {
+                    rangeValueLabel.textContent = 'All time';
                 } else {
                     rangeValueLabel.textContent = days + ' days';
                 }
