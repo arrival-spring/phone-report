@@ -64,6 +64,17 @@ async function generateProgressPage(country = null, locale = 'en-GB') {
             </header>
 
             <div class="card">
+                <div class="controls-container p-4">
+                    <label for="timeRange" class="block text-sm font-medium text-gray-700 dark:text-gray-300">Time Range</label>
+                    <input id="timeRange" type="range" min="30" max="365" value="90" class="w-full h-2 bg-gray-200 rounded-lg appearance-none cursor-pointer dark:bg-gray-700">
+                    <div class="flex justify-between text-xs text-gray-600 dark:text-gray-400 mt-1">
+                        <span id="rangeMin">30 days</span>
+                        <span id="rangeValue">90 days</span>
+                        <span id="rangeMax">1 year</span>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
                 <div class="chart-container">
                     <canvas id="progressChart"></canvas>
                 </div>
