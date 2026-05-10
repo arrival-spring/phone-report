@@ -34,7 +34,7 @@
     <div class="page-container">
         <header class="page-header">
             <div class="action-row">
-                <a href="<%= it.singleLevelDivision ? './' : '../' %>" class="back-link">
+                <a href="<%= it.singleLevelDivision ? './' : '../' %>" class="back-link" aria-label="<%= it.translate('backToCountryPage', it.locale) %>">
                     <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6 inline-block align-middle mr-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
                     </svg>
@@ -84,7 +84,7 @@
         <div class="save-modal-dialog" role="dialog" aria-modal="true">
             <div class="save-modal-content">
                 <h3 id="upload-modal-title" class="save-modal-title"></h3>
-                <button id="upload-close-modal-btn-top" class="modal-close" data-action="close-upload-modal">
+                <button id="upload-close-modal-btn-top" class="modal-close" data-action="close-upload-modal" aria-label="<%= it.translate('close', it.locale) %>">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -102,7 +102,7 @@
         <div class="save-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
             <div class="save-modal-content">
                 <h3 id="edits-modal-title" class="save-modal-title"></h3>
-                <button id="edits-close-modal-btn-top" class="modal-close" data-action="discard">
+                <button id="edits-close-modal-btn-top" class="modal-close" data-action="discard" aria-label="<%= it.translate('close', it.locale) %>">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>
@@ -121,7 +121,7 @@
         <div class="save-modal-dialog" role="dialog" aria-modal="true" aria-labelledby="modal-title">
             <div class="save-modal-content">
                 <h3 id="note-modal-title" class="save-modal-title"></h3>
-                <button id="note-close-modal-btn-top" class="modal-close" data-action="close-note-modal">
+                <button id="note-close-modal-btn-top" class="modal-close" data-action="close-note-modal" aria-label="<%= it.translate('close', it.locale) %>">
                     <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
                 </button>
             </div>

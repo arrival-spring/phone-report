@@ -32,6 +32,7 @@ const MASTER_KEYS = {
     'noAutoFixable': [],
     'noInvalidNumbers': [],
     'settings': [],
+    'toggleTheme': [],
     'searchPlaceholder': [],
     'disused': [],
     'noSubdivisionsFound': [],
