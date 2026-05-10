@@ -11,7 +11,9 @@
   "iconsSourcedFrom": "Icons sourced from:",
   "numberDetailsNamesDataFrom": "Phone numbers, point of interest details and region names from %o",
 
-  "settings": "settings",
+  "settings": "Settings",
+  "toggleTheme": "Toggle theme",
+  "searchPlaceholder": "Search countries or regions...",
 
   "openLocation": "Open location",
   "editIn": "Edit in %e",
