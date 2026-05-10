@@ -195,13 +195,16 @@ function isStandardExtension(numberStr) {
     return null;
 }
 
+const SPACING_REGEX_NANP = /[\s-]/g;
+const SPACING_REGEX_DEFAULT = /\s/g;
+
 /**
  * Gets the relevant regex for valid spacing in the given country code.
  * @param {string} countryCode - The country code.
  * @returns {RegExp} The regular expression to use for spacing validation.
  */
 function getSpacingRegex(countryCode) {
-    return NANP_COUNTRY_CODES.includes(countryCode) ? /[\s-]/g : /\s/g;
+    return NANP_COUNTRY_CODES.includes(countryCode) ? SPACING_REGEX_NANP : SPACING_REGEX_DEFAULT;
 }
 
 /**
@@ -338,35 +341,62 @@ function getNumberAndExtension(numberStr, countryCode) {
  * @returns {string} The formatted number
  */
 function getFormattedNumber(phoneNumber, tollFreeAsInternational = false) {
-    countryCode = phoneNumber.country;
+    const countryCode = phoneNumber.country;
 
     const isPolishPrefixed = isPolishPrefixedNumber(phoneNumber, countryCode);
 
-    const coreNumberE164 = isPolishPrefixed
-        ? `+48 ${phoneNumber.nationalNumber.slice(1)}`
-        : phoneNumber.number;
+    let corePhoneNumber = phoneNumber;
+    if (isPolishPrefixed) {
+        const coreNumberE164 = `+48 ${phoneNumber.nationalNumber.slice(1)}`;
+        corePhoneNumber = parsePhoneNumber(coreNumberE164);
+        if (phoneNumber.ext) {
+            corePhoneNumber.ext = phoneNumber.ext;
+        }
+    }
 
-    const internationalNumber = parsePhoneNumber(coreNumberE164).format('INTERNATIONAL')
+    // corePhoneNumber.number already contains the extension if it was present when parsed.
+    // parsePhoneNumber(standardisedNumber) in processSingleNumber already includes the extension.
+    const internationalNumber = corePhoneNumber.format('INTERNATIONAL');
 
-    const coreFormatted = NANP_COUNTRY_CODES.includes(countryCode)
+    let coreFormatted = NANP_COUNTRY_CODES.includes(countryCode)
         ? internationalNumber.replace(/\s/g, '-').replace('-ext.-', ' x')
         : internationalNumber;
 
-    // Append the extension in the standard format (' x{ext}', DIN format or with hash for TW)
-    const extension = phoneNumber.ext ?
-        (
-            DIN_FORMAT_COUNTRIES.includes(countryCode) ? `-${phoneNumber.ext}`
-            : countryCode === 'TW' ? `#${phoneNumber.ext}`
-            : ` x${phoneNumber.ext}`
-        )
-        : '';
+    // libphonenumber-js formats extensions as " ext. " for many countries.
+    // We want to use our specific standard formats: " x", "-" for DIN, "#" for TW.
+    if (corePhoneNumber.ext) {
+        const standardExtension =
+            DIN_FORMAT_COUNTRIES.includes(countryCode) ? `-${corePhoneNumber.ext}`
+            : countryCode === 'TW' ? `#${corePhoneNumber.ext}`
+            : ` x${corePhoneNumber.ext}`;
 
-    if (NON_STANDARD_COST_TYPES.includes(phoneNumber.getType()) && !tollFreeAsInternational) {
-        const coreFormattedNational = parsePhoneNumber(coreNumberE164).format('NATIONAL');
-        return coreFormattedNational + extension;
+        // Replace any extension format libphonenumber-js might have used with our standard one.
+        // It commonly uses " ext. " or " x" or "#".
+        if (coreFormatted.match(/(\s*ext\.\s*|\s*x|\#)(\d+)/)) {
+            coreFormatted = coreFormatted.replace(/(\s*ext\.\s*|\s*x|\#)(\d+)/, standardExtension);
+        } else {
+            // If libphonenumber-js didn't include the extension for some reason (e.g. Polish numbers with isPolishPrefixed), append it.
+            coreFormatted += standardExtension;
+        }
     }
 
-    return coreFormatted + extension;
+    if (NON_STANDARD_COST_TYPES.includes(corePhoneNumber.getType()) && !tollFreeAsInternational) {
+        let coreFormattedNational = corePhoneNumber.format('NATIONAL');
+        if (corePhoneNumber.ext) {
+            const standardExtension =
+                DIN_FORMAT_COUNTRIES.includes(countryCode) ? `-${corePhoneNumber.ext}`
+                : countryCode === 'TW' ? `#${corePhoneNumber.ext}`
+                : ` x${corePhoneNumber.ext}`;
+            if (coreFormattedNational.match(/(\s*ext\.\s*|\s*x|\#)(\d+)/)) {
+                coreFormattedNational = coreFormattedNational.replace(/(\s*ext\.\s*|\s*x|\#)(\d+)/, standardExtension);
+            } else {
+                coreFormattedNational += standardExtension;
+            }
+        }
+        return coreFormattedNational;
+    }
+
+    return coreFormatted;
 }
 
 /**
@@ -565,7 +595,9 @@ function processSingleNumber(numberStr, countryCode, osmTags = {}, tag) {
     const invalidSpacingRegex = countryCode === 'TW' ? INVALID_SPACING_CHARACTERS_REGEX_TW : INVALID_SPACING_CHARACTERS_REGEX
 
     const { coreNumber, extension, hasStandardExtension } = getNumberAndExtension(numberStr.replace(invalidSpacingRegex, " "), countryCode);
-    const standardisedNumber = extension ? `${coreNumber} x${extension}` : coreNumber;
+    // Use " ext. " as it is a format libphonenumber-js reliably identifies as an extension.
+    // Our getFormattedNumber will then normalize it to our desired standard.
+    const standardisedNumber = extension ? `${coreNumber} ext. ${extension}` : coreNumber;
 
     try {
         phoneNumber = parsePhoneNumber(standardisedNumber, countryCode);
