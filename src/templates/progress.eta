@@ -20,7 +20,7 @@
                     </svg>
                     <span class="align-middle"><%= it.country ? it.translate('backToCountryPage', it.locale) : it.translate('backToAllCountries', it.locale) %></span>
                 </a>
-                <%~ include("./partials/theme-button") %>
+                <%~ include("./partials/theme-button", it) %>
             </div>
             <h1 class="page-title"><%= it.translate('progressHistory', it.locale) %></h1>
         </header>

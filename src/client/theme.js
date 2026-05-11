@@ -8,7 +8,9 @@ document.addEventListener('DOMContentLoaded', () => {
      * or the user's OS-level preference. It also updates the toggle icon visibility.
      */
     const setInitialTheme = () => {
-        if (localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+        const isDark = localStorage.getItem('color-theme') === 'dark' || (!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches);
+
+        if (isDark) {
             document.documentElement.classList.add('dark');
             if (themeToggleLightIcon) themeToggleLightIcon.classList.remove('hidden');
             if (themeToggleDarkIcon) themeToggleDarkIcon.classList.add('hidden');
@@ -17,6 +19,18 @@ document.addEventListener('DOMContentLoaded', () => {
             if (themeToggleDarkIcon) themeToggleDarkIcon.classList.remove('hidden');
             if (themeToggleLightIcon) themeToggleLightIcon.classList.add('hidden');
         }
+        updateButtonAccessibility(isDark);
+    };
+
+    /**
+     * Updates the aria-label and title of the theme toggle button.
+     * @param {boolean} isDark - True if the current theme is dark.
+     */
+    const updateButtonAccessibility = (isDark) => {
+        if (!themeToggleBtn || typeof translate !== 'function') return;
+        const label = isDark ? translate('themeToggleLight') : translate('themeToggleDark');
+        themeToggleBtn.setAttribute('aria-label', label);
+        themeToggleBtn.setAttribute('title', label);
     };
 
     setInitialTheme();
@@ -31,6 +45,8 @@ document.addEventListener('DOMContentLoaded', () => {
             // Toggle the icons
             if (themeToggleDarkIcon) themeToggleDarkIcon.classList.toggle('hidden');
             if (themeToggleLightIcon) themeToggleLightIcon.classList.toggle('hidden');
+
+            updateButtonAccessibility(isDark);
 
             // Dispatch a custom event to notify other scripts of the theme change
             window.dispatchEvent(new Event('themeChanged'));

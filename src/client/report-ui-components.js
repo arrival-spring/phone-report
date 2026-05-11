@@ -5,8 +5,8 @@ export function createSaveRow() {
     return `
         <div class="save-undo-row">
             <span class="flex items-center">
-                <button id="undo-btn" class="btn-undo-redo gray-btn-disabled" data-action="undo" disabled><svg class="icon-svg"><use href="#icon-undo"></use></svg></button>
-                <button id="redo-btn" class="btn-undo-redo gray-btn-disabled" data-action="redo" disabled><svg class="icon-svg"><use href="#icon-redo"></use></svg></button>
+                <button id="undo-btn" class="btn-undo-redo gray-btn-disabled" data-action="undo" aria-label="${translate('undo')}" title="${translate('undo')}" disabled><svg class="icon-svg"><use href="#icon-undo"></use></svg></button>
+                <button id="redo-btn" class="btn-undo-redo gray-btn-disabled" data-action="redo" aria-label="${translate('redo')}" title="${translate('redo')}" disabled><svg class="icon-svg"><use href="#icon-redo"></use></svg></button>
             </span>
             <div id="save-btn-container">
                 <button id="save-btn" class="btn-squared gray-btn-disabled" data-action="open-upload-modal" disabled>${translate('save')}</button>
@@ -64,7 +64,7 @@ export function createListItem(item) {
     return `
         <li class="report-list-item" data-item-id="${itemId}">
             <div class="list-item-content-wrapper">
-                <a class="list-item-icon-circle-preview" href="https://www.openstreetmap.org/${item.type}/${item.id}" target="_blank" rel="noopener noreferrer">
+                <a class="list-item-icon-circle-preview" href="https://www.openstreetmap.org/${item.type}/${item.id}" target="_blank" rel="noopener noreferrer" aria-label="${translate('openLocation')}" title="${translate('openLocation')}">
                     ${iconHtml}
                 </a>
                 <div class="list-item-details-wrapper">

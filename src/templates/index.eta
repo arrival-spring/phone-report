@@ -23,7 +23,7 @@
                     <%= it.translate(it.reportType === 'phone' ? 'osmPhoneNumberValidation' : 'osmIncompleteNameValidation', it.locale) %>
                 </h1>
                 <div class="items-end">
-                    <%~ include("./partials/theme-button") %>
+                    <%~ include("./partials/theme-button", it) %>
                 </div>
             </div>
             <p class="report-subtitle">
