@@ -107,4 +107,4 @@ const MASTER_KEYS = {
     'countryReportTitleNames': ['%c']
 };
 
-module.exports = { MASTER_KEYS };
+export { MASTER_KEYS };
