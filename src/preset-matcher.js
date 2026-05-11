@@ -14,8 +14,32 @@ const presetsData = JSON.parse(fs.readFileSync(path.resolve(__dirname, '..', 'no
  * @type {Object<string, object>}
  */
 const allPresets = {};
+/**
+ * Index to quickly find presets by their required tag keys.
+ * @type {Map<string, Set<string>>}
+ */
+const presetsByTagKey = new Map();
+/**
+ * Presets that have no required tags and thus could match any element.
+ * @type {Set<string>}
+ */
+const presetsWithNoTags = new Set();
+
 for (const key in presetsData) {
-    allPresets[key] = { ...presetsData[key], id: key };
+    const preset = { ...presetsData[key], id: key };
+    allPresets[key] = preset;
+
+    const tagKeys = Object.keys(preset.tags || {});
+    if (tagKeys.length === 0) {
+        presetsWithNoTags.add(key);
+    } else {
+        for (const tagKey of tagKeys) {
+            if (!presetsByTagKey.has(tagKey)) {
+                presetsByTagKey.set(tagKey, new Set());
+            }
+            presetsByTagKey.get(tagKey).add(key);
+        }
+    }
 }
 
 /**
@@ -155,8 +179,12 @@ function getMatchScore(preset, tags, geometry) {
 }
 
 /**
- * Finds the best matching preset for a given OSM item by iterating through all known presets
- * and maximizing the match score.
+ * Finds the best matching preset for a given OSM item.
+ *
+ * Optimization: Instead of iterating over all ~1700 presets, we use the `presetsByTagKey` index.
+ * We only check presets that require at least one tag key present in the item, plus any
+ * presets with no required tags.
+ *
  * @param {object} item - The OSM item object (must have .allTags and .type).
  * @param {string} [locale='en'] - The desired language locale for the preset name translation.
  * @returns {object|null} A copy of the best matching preset with its name translated, or null if no match is found.
@@ -167,13 +195,24 @@ function getBestPreset(item, locale = 'en') {
     let maxScore = -1;
 
     // Use globally injected mock presets for testing, or the real presets otherwise.
-    const presetsToTest = (typeof global !== 'undefined' && typeof global.getMockPresets === 'function')
-        ? global.getMockPresets()
-        : allPresets;
+    const isMock = typeof global !== 'undefined' && typeof global.getMockPresets === 'function';
+    const presetsToTest = isMock ? global.getMockPresets() : allPresets;
 
-    for (const id in presetsToTest) {
+    // Optimized matching using index
+    const candidateIds = isMock ? Object.keys(presetsToTest) : new Set(presetsWithNoTags);
+    if (!isMock) {
+        for (const tagKey in item.allTags) {
+            const ids = presetsByTagKey.get(tagKey);
+            if (ids) {
+                for (const id of ids) {
+                    candidateIds.add(id);
+                }
+            }
+        }
+    }
+
+    for (const id of candidateIds) {
         const preset = presetsToTest[id];
-
         const score = getMatchScore(preset, item.allTags, geometry);
         if (score > maxScore) {
             maxScore = score;
