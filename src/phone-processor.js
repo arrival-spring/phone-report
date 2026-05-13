@@ -325,10 +325,30 @@ export function getNumberAndExtension(numberStr, countryCode) {
             }
         }
     }
+    const match = numberStr.toLowerCase().match(EXTENSION_REGEX);
+    let coreNumber = numberStr;
+    let extension = null;
+    let hasStandardExtension = null;
+
+    if (match) {
+        if (match[1]) coreNumber = match[1].trim();
+        if (match[3]) extension = match[3].replace(/[^\d]/g, '');
+
+        if (match[3] && match[2]) {
+            const caseInsensitiveExtensionMarker = match[2];
+            // Since we matched lowercase, find original marker in original string
+            // We use the capture group indices: match[0] is full match, match[1] is coreNumber, match[2] is marker
+            const markerIndex = numberStr.toLowerCase().indexOf(caseInsensitiveExtensionMarker, match[1] ? match[1].length : 0);
+            const originalMarker = numberStr.substring(markerIndex, markerIndex + match[2].length);
+
+            hasStandardExtension = ACCEPTABLE_EXTENSION_FORMATS.includes(originalMarker);
+        }
+    }
+
     return {
-        coreNumber: stripStandardExtension(numberStr),
-        extension: getStandardExtension(numberStr),
-        hasStandardExtension: isStandardExtension(numberStr),
+        coreNumber,
+        extension,
+        hasStandardExtension,
     }
 }
 
@@ -348,9 +368,11 @@ function getFormattedNumber(phoneNumber, tollFreeAsInternational = false) {
         ? `+48 ${phoneNumber.number.slice(4)}`
         : phoneNumber.number;
 
-    const internationalNumber = parsePhoneNumber(coreNumberE164).format('INTERNATIONAL')
+    const internationalNumber = isPolishPrefixed
+        ? parsePhoneNumber(coreNumberE164).format('INTERNATIONAL')
+        : phoneNumber.format('INTERNATIONAL');
 
-    const coreFormatted = NANP_COUNTRY_CODES.includes(countryCode)
+    let coreFormatted = NANP_COUNTRY_CODES.includes(countryCode)
         ? internationalNumber.replace(/\s/g, '-').replace('-ext.-', ' x')
         : internationalNumber;
 
@@ -363,8 +385,27 @@ function getFormattedNumber(phoneNumber, tollFreeAsInternational = false) {
         )
         : '';
 
+    // If the library formatting already included an extension (e.g. from phoneNumber.format()),
+    // we want to strip it first to ensure consistency with our custom extension format.
+    const extensionMarkers = [' x', ' ext. ', '#'];
+    for (const marker of extensionMarkers) {
+        if (coreFormatted.includes(marker)) {
+            coreFormatted = coreFormatted.split(marker)[0];
+            break;
+        }
+    }
+
     if (NON_STANDARD_COST_TYPES.includes(phoneNumber.getType()) && !tollFreeAsInternational) {
-        const coreFormattedNational = parsePhoneNumber(coreNumberE164).format('NATIONAL');
+        let coreFormattedNational = isPolishPrefixed
+            ? parsePhoneNumber(coreNumberE164).format('NATIONAL')
+            : phoneNumber.format('NATIONAL');
+
+        for (const marker of extensionMarkers) {
+            if (coreFormattedNational.includes(marker)) {
+                coreFormattedNational = coreFormattedNational.split(marker)[0];
+                break;
+            }
+        }
         return coreFormattedNational + extension;
     }
 
@@ -567,6 +608,9 @@ export function processSingleNumber(numberStr, countryCode, osmTags = {}, tag) {
 
     try {
         phoneNumber = parsePhoneNumber(standardisedNumber, countryCode);
+        if (extension) {
+            phoneNumber.setExt(extension);
+        }
 
         const exclusionResult = checkExclusions(phoneNumber, numberStr, countryCode, osmTags);
         if (exclusionResult) {

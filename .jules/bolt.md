@@ -1,0 +1,3 @@
+## 2025-05-15 - Redundant parsing and regex in phone processing
+**Learning:** `libphonenumber-js` parsing is expensive. Redundant calls in `validateSingleTag` and `getFormattedNumber` were a bottleneck. Additionally, repeated regex matches for extensions in `getNumberAndExtension` added unnecessary overhead.
+**Action:** Guard slash-processing logic with `.includes('/')`, reuse parsed `PhoneNumber` objects in `getFormattedNumber`, and consolidate regex matches into a single capture operation in `getNumberAndExtension`. Ensure parity by manually normalizing library-formatted strings when they use non-standard separators like "ext.".
