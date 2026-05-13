@@ -230,3 +230,24 @@ export function getFilterType(osmType, osmId) {
     }
     return 'invalid'
 }
+
+/**
+ * Escapes special HTML characters in a string to prevent XSS.
+ * @param {string} str - The string to escape.
+ * @returns {string} The escaped string.
+ */
+export function escapeHTML(str) {
+    if (!str) {
+        return '';
+    }
+    return str.replace(/[&<>"']/g, (match) => {
+        switch (match) {
+            case '&': return '&amp;';
+            case '<': return '&lt;';
+            case '>': return '&gt;';
+            case '"': return '&quot;';
+            case "'": return '&#039;';
+            default: return match;
+        }
+    });
+}
