@@ -3,7 +3,6 @@ import { parsePhoneNumber } from 'libphonenumber-js/max';
 import {
     EXCLUSIONS,
     MOBILE_TAGS,
-    WEBSITE_TAGS,
     BAD_SEPARATOR_REGEX,
     UNIVERSAL_SPLIT_REGEX,
     UNIVERSAL_SPLIT_REGEX_DIN,
@@ -24,7 +23,7 @@ import {
     CAN_REFORMAT_NUMBER_WITHOUT_SPACES,
     INVALID_SPACING_CHARACTERS_REGEX_TW,
 } from './constants.js';
-import { getRepresentativeLocation } from './data-processor.js';
+import { createBaseItem } from './data-processor.js';
 
 const MobileStatus = {
     MOBILE: 'mobile',
@@ -969,33 +968,13 @@ export async function validateNumbers(elementStream, countryCode, tmpFilePath) {
         const allNormalisedPhoneNumbers = new Map();
         const allNormalisedFaxNumbers = new Map();
 
-        const createItem = () => {
-            let website = WEBSITE_TAGS.map(tag => tags[tag]).find(url => url);
-            if (website && !website.startsWith('http://') && !website.startsWith('https://')) {
-                website = `http://${website}`;
-            }
+        const getOrCreateItem = (autoFixable) => {
+            if (item) return item;
 
-            const { lat, lon } = getRepresentativeLocation(element.geometry);
-            
-            const { type: geometryType, coordinates: c } = element.geometry;
-            // Many areas are returned as LineString due to osmium export
-            const couldBeArea = ['Polygon', 'MultiPolygon'].includes(geometryType)
-                || (geometryType === 'LineString' && c.length > 2 && c[0][0] === c[c.length - 1][0] && c[0][1] === c[c.length - 1][1]);
-
-            const elementTimestamp = element.properties["@timestamp"] ? new Date(element.properties["@timestamp"] * 1000).toISOString() : 0;
-
-            const baseItem = {
-                type: element.properties["@type"],
-                id: element.properties["@id"],
-                user: element.properties["@user"],
-                timestamp: elementTimestamp,
-                changeset: element.properties["@changeset"],
-                website,
-                lat,
-                lon,
-                couldBeArea,
-                name: tags.name,
-                allTags: tags,
+            const baseItem = createBaseItem(element);
+            item = {
+                ...baseItem,
+                autoFixable,
                 invalidNumbers: new Map(),
                 suggestedFixes: new Map(),
                 hasTypeMismatch: false,
@@ -1003,27 +982,22 @@ export async function validateNumbers(elementStream, countryCode, tmpFilePath) {
                 duplicateNumbers: new Map(),
                 validForeignNumbers: new Map(),
             };
-            return baseItem;
-        };
-
-        const getOrCreateItem = (autoFixable) => {
-            if (item) return item;
-
-            const baseItem = createItem();
-            item = { ...baseItem, autoFixable }
-            return item
+            return item;
         };
 
         const getOrCreateForeignItem = () => {
             if (foreignItem) return foreignItem;
 
-            const baseItem = createItem();
-
+            const baseItem = createBaseItem(element);
             foreignItem = {
                 ...baseItem,
                 isForeignItem: true,
+                invalidNumbers: new Map(),
+                suggestedFixes: new Map(),
+                hasTypeMismatch: false,
+                mismatchTypeNumbers: new Map(),
+                duplicateNumbers: new Map(),
                 validForeignNumbers: new Map(),
-
             };
             return foreignItem;
         };
