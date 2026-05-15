@@ -340,34 +340,53 @@ export function getNumberAndExtension(numberStr, countryCode) {
  */
 function getFormattedNumber(phoneNumber, tollFreeAsInternational = false) {
     const countryCode = phoneNumber.country;
-
     const isPolishPrefixed = isPolishPrefixedNumber(phoneNumber, countryCode);
 
-    const coreNumberE164 = isPolishPrefixed
-        ? `+48 ${phoneNumber.number.slice(4)}`
-        : phoneNumber.number;
+    // If Polish prefixed, we must use a re-parsed version as the original is invalid
+    let workingPhoneNumber = phoneNumber;
+    if (isPolishPrefixed) {
+        workingPhoneNumber = parsePhoneNumber(phoneNumber.nationalNumber.slice(1), 'PL');
+        if (phoneNumber.ext) {
+            workingPhoneNumber.setExt(phoneNumber.ext);
+        }
+    }
 
-    const internationalNumber = parsePhoneNumber(coreNumberE164).format('INTERNATIONAL')
+    // Temporarily clear extension to get the core formatted number without libphonenumber's default extension separator
+    const originalExt = workingPhoneNumber.ext;
+    if (originalExt) {
+        workingPhoneNumber.ext = undefined;
+    }
+
+    const internationalNumber = workingPhoneNumber.format('INTERNATIONAL');
 
     const coreFormatted = NANP_COUNTRY_CODES.includes(countryCode)
         ? internationalNumber.replace(/\s/g, '-').replace('-ext.-', ' x')
         : internationalNumber;
 
-    // Append the extension in the standard format (' x{ext}', DIN format or with hash for TW)
-    const extension = phoneNumber.ext ?
+    // Append the extension in the project-standard format (' x{ext}', DIN format '-' or with hash for TW)
+    const extension = originalExt ?
         (
-            DIN_FORMAT_COUNTRIES.includes(countryCode) ? `-${phoneNumber.ext}`
-            : countryCode === 'TW' ? `#${phoneNumber.ext}`
-            : ` x${phoneNumber.ext}`
+            DIN_FORMAT_COUNTRIES.includes(countryCode) ? `-${originalExt}`
+            : countryCode === 'TW' ? `#${originalExt}`
+            : ` x${originalExt}`
         )
         : '';
 
-    if (NON_STANDARD_COST_TYPES.includes(phoneNumber.getType()) && !tollFreeAsInternational) {
-        const coreFormattedNational = parsePhoneNumber(coreNumberE164).format('NATIONAL');
-        return coreFormattedNational + extension;
+    let result;
+    // For non-standard cost types like toll-free, use national format if requested
+    if (NON_STANDARD_COST_TYPES.includes(workingPhoneNumber.getType()) && !tollFreeAsInternational) {
+        const coreFormattedNational = workingPhoneNumber.format('NATIONAL');
+        result = coreFormattedNational + extension;
+    } else {
+        result = coreFormatted + extension;
     }
 
-    return coreFormatted + extension;
+    // Restore extension to the mutable PhoneNumber object
+    if (originalExt) {
+        workingPhoneNumber.setExt(originalExt);
+    }
+
+    return result;
 }
 
 /**
