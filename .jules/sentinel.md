@@ -1,0 +1,4 @@
+## 2025-05-15 - Client-side XSS via Template Injection and Unsafe Entity Decoding
+**Vulnerability:** Unescaped OpenStreetMap metadata (changeset IDs and website URLs) were being directly injected into HTML strings on the client side. Additionally, `decodeHtmlEntities` used `innerHTML` on a temporary `textarea` element to decode entities, which could be exploited if malicious content was passed to it.
+**Learning:** Even if data is partially validated or expected to be numeric/safe (like changeset IDs), direct injection into HTML templates without consistent escaping is a high-risk pattern. Using `innerHTML` for utility tasks like entity decoding is a common but dangerous shortcut.
+**Prevention:** Always use `escapeHTML` for any data injected into the DOM, even if it's expected to be safe. Use `DOMParser` with `textContent` for secure HTML entity decoding instead of the `innerHTML` trick.
