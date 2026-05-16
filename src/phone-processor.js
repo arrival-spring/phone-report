@@ -711,7 +711,7 @@ function expandSlashEnding(tagValue, countryCode, osmTags, tag) {
         return null;
     }
 
-    const altNumber = parts[0].slice(0, -parts[1].length) + [parts[1]];
+    const altNumber = parts[0].slice(0, -parts[1].length) + parts[1];
 
     const altValidationResult = processSingleNumber(altNumber, countryCode, osmTags, tag);
 
