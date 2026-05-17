@@ -743,8 +743,13 @@ export function validateSingleTag(tagValue, countryCode, osmTags, tag) {
     const hasBadSeparator = tag === 'contact:whatsapp' ? false : originalTagValue.match(BAD_SEPARATOR_REGEX);
     const hasBadExtension = originalTagValue.match(/, ext|\\;ext=/gi);
 
-    const slashAsSpace = isSlashSpace(tagValue, countryCode, osmTags, tag);
-    const slashForMultipleEndings = expandSlashEnding(tagValue, countryCode, osmTags, tag);
+    let slashAsSpace = false;
+    let slashForMultipleEndings = null;
+
+    if (originalTagValue.includes('/')) {
+        slashAsSpace = isSlashSpace(tagValue, countryCode, osmTags, tag);
+        slashForMultipleEndings = expandSlashEnding(tagValue, countryCode, osmTags, tag);
+    }
 
     const splitRegex = slashAsSpace ? UNIVERSAL_SPLIT_REGEX_DIN : UNIVERSAL_SPLIT_REGEX;
 
