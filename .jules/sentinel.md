@@ -1,0 +1,4 @@
+## 2026-05-19 - Non-Recursive Translation Substitution
+**Vulnerability:** Recursive placeholder substitution in i18n logic. If a translation value (from a locale file or dynamic input) contains a substring matching another placeholder key (e.g., `%t`), the `translate` function would perform a second substitution on that value. This could be exploited if an attacker can control data that is passed as a substitution argument.
+**Learning:** Sequential `.replace()` calls on the same string for different placeholders create a "Translation Atom Bomb" risk where substitutions can be nested.
+**Prevention:** Use a single-pass replacement strategy with a global regular expression and a mapping/callback function. This ensures each part of the original string is replaced at most once and substituted values are never themselves scanned for placeholders.
