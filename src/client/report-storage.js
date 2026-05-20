@@ -1,4 +1,10 @@
-import { appState, CLICKED_ITEMS_KEY, DEFAULT_EDITORS, undoData, UPLOADED_ITEMS_KEY } from './report-state.js';
+import {
+    appState,
+    CLICKED_ITEMS_KEY,
+    DEFAULT_EDITORS,
+    undoData,
+    UPLOADED_ITEMS_KEY,
+} from './report-state.js';
 import {
     enableRedo,
     disableRedo,
@@ -12,6 +18,7 @@ import {
     enableSave,
     disableUndo,
 } from './report-ui-controller.js';
+import { reportType, subdivisionName, storageKey } from './config.js';
 
 /**
  * Adds an item's ID to localStorage to mark it as clicked.
@@ -79,7 +86,7 @@ export function isItemClicked(itemId) {
  */
 export function loadSettings() {
     try {
-        const saved = localStorage.getItem(STORAGE_KEY);
+        const saved = localStorage.getItem(storageKey);
         if (saved) {
             appState.currentActiveEditors = JSON.parse(saved);
             return;
@@ -96,7 +103,7 @@ export function loadSettings() {
  */
 export function saveSettings() {
     try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(appState.currentActiveEditors));
+        localStorage.setItem(storageKey, JSON.stringify(appState.currentActiveEditors));
     } catch (e) {
         console.error('Error saving settings to localStorage:', e);
     }

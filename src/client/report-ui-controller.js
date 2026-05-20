@@ -1,11 +1,19 @@
-import { addNote, openInJosm, login, logout, checkAndSubmit } from './report-osm-edit.js';
+import {
+    addNote,
+    openInJosm,
+    login,
+    logout,
+    checkAndSubmit,
+} from './report-osm-edit.js';
 // prettier-ignore
-import { addNoteBtn, commentBox, editsModal, noteCancelBtn, noteCloseBtnBottom, noteModal, settingsMenu, uploadBtn, uploadCancelBtn, uploadCloseBtnBottom, uploadModal, pageSize, currentPage, sortKey, undoData, appState } from './report-state.js';
+import { addNoteBtn, commentBox, editsModal, noteCancelBtn, noteCloseBtnBottom, noteModal, settingsMenu, uploadBtn, uploadCancelBtn, uploadCloseBtnBottom, pageSize, currentPage, sortKey, undoData, appState } from './report-state.js';
 // prettier-ignore
 import { applyFix, discardEdits, recordItemClick, redoChange, saveSettings, setButtonsAsClicked, undoChange } from './report-storage.js';
 import { changePage, getItemWithIndex, handleSort } from './report-ui-actions.js';
 import { createListItem, createSaveRow, decodeHtmlEntities } from './report-ui-components.js';
 import { getFilterType, getSortedItems } from './report-utils.js';
+import { reportType, subdivisionName, openingHoursEvaluationToolUrl, allEditorIds } from './config.js';
+import { translate } from './i18n.js';
 
 let firstLoad = true;
 
@@ -176,7 +184,7 @@ export function renderNumbers() {
     noInvalidContainer && (noInvalidContainer.innerHTML = '');
 
     if (anyFixable || anyInvalid || anyMissing || editCount.total > 0) {
-        const evaluationToolLink = `<a href="${OPENING_HOURS_EVALUATION_TOOL_URL}" target="_blank" rel="noopener noreferrer" class="description-link">${translate('evaluationTool')}</a>`;
+        const evaluationToolLink = `<a href="${openingHoursEvaluationToolUrl}" target="_blank" rel="noopener noreferrer" class="description-link">${translate('evaluationTool')}</a>`;
         const evaluationToolSentence =
             reportType === 'hours' ? ' ' + translate('checkOpeningHoursFormat', { link: evaluationToolLink }) : '';
 
@@ -497,7 +505,7 @@ function openUploadModal() {
 
     commentBox.disabled = false;
     commentBox.classList.remove('cursor-not-allowed');
-    commentBox.value = `${subdivisionName}: ` + CHANGESET_TAGS.comment;
+    commentBox.value = `${subdivisionName}: ` + translate('changesetComment');
 
     if (!OSM.isLoggedIn()) {
         uploadBtn.disabled = true;
@@ -534,7 +542,7 @@ function disableCreateNoteWithMessage(message) {
 
 /**
  * Displays the modal window for creating a note and checks if the user is logged into OSM.
- * @param {object} item - The item to create a note for.
+ * @param {Object} item - The item to create a note for.
  * @returns {void}
  */
 export function openNoteModal(item) {
@@ -606,7 +614,7 @@ export function openNoteModal(item) {
     }
 
     noteComment += `\n\n#surveyme\nhttps://www.openstreetmap.org/${item.type}/${item.id}\n`;
-    noteComment += `via ${CHANGESET_TAGS['created_by']}`;
+    noteComment += `via ${translate('createdBy')}`;
 
     noteCommentBox.value = decodeHtmlEntities(noteComment);
 
@@ -734,7 +742,7 @@ export function disableModalCloseListeners() {
 export function createSettingsCheckboxes() {
     settingsMenu.innerHTML = '';
 
-    ALL_EDITOR_IDS.forEach(id => {
+    allEditorIds.forEach(id => {
         const isChecked = appState.currentActiveEditors.includes(id);
         const checkboxHtml = `
             <div class="flex items-center justify-between py-5 px-5">

@@ -51,7 +51,8 @@
         </div>
     </div>
     <script>
-        const REPORT_COUNTRY_KEY = '<%= it.country ? it.country : "ALL" %>';
+        window.__CONFIG__ = <%~ JSON.stringify(it.progressConfig) %>;
     </script>
+    <script type="module" src="<%= it.country ? '../' : './' %>chart-generator.js"></script>
 </body>
 </html>
