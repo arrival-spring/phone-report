@@ -1,0 +1,3 @@
+## 2025-05-14 - Redundant preset matching in report generation
+**Learning:** In `createClientItems`, multiple utility functions (`getFeatureTypeName`, `getFeatureIcon`) were independently calling `getBestPreset`, which is a relatively expensive operation (matching tags against the iD tagging schema). Hoisting this call and passing the result as an optional argument significantly improves performance, especially for reports with many items.
+**Action:** Always check for redundant expensive lookups within high-frequency loops or stream transformers. Use optional parameters and strict `undefined` checks to allow passing in pre-calculated results.
