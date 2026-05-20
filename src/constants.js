@@ -207,35 +207,33 @@ const escapeRegex = string => {
     return string.replace(/[-\/\\^$+?.()|[\]{}]/g, '\\$&');
 };
 
-export const spaceOptionalGroups = SEPARATOR_OPTIONAL_SPACE.map(sep => {
-    const escapedSep = escapeRegex(sep);
+/**
+ * Creates a regex string representing a set of optional separators.
+ * @param {string[]} separators - The list of separator characters.
+ * @returns {string} The combined regex string.
+ */
+const createSpaceOptionalGroups = separators => {
+    return separators
+        .map(sep => {
+            const escapedSep = escapeRegex(sep);
 
-    if (sep === ';') {
-        // Don't split on escaped semicolons, e.g. within "\;ext="
-        return `(\\s*(?<!\\\\)(?:${escapedSep})\\s*)`;
-    }
-    if (sep === ',') {
-        // Don't split on commas followed by ",ext" or ", ext"
-        return `(\\s*(?:${escapedSep})(?!\\s*ext)\\s*)`;
-    }
+            if (sep === ';') {
+                // Don't split on escaped semicolons, e.g. within "\;ext="
+                return `(\\s*(?<!\\\\)(?:${escapedSep})\\s*)`;
+            }
+            if (sep === ',') {
+                // Don't split on commas followed by ",ext" or ", ext"
+                return `(\\s*(?:${escapedSep})(?!\\s*ext)\\s*)`;
+            }
 
-    return `(\\s*${escapedSep}\\s*)`;
-}).join('|');
+            return `(\\s*${escapedSep}\\s*)`;
+        })
+        .join('|');
+};
 
-export const spaceOptionalGroupsDin = SEPARATOR_OPTIONAL_SPACE_DIN.map(sep => {
-    const escapedSep = escapeRegex(sep);
+export const spaceOptionalGroups = createSpaceOptionalGroups(SEPARATOR_OPTIONAL_SPACE);
 
-    if (sep === ';') {
-        // Don't split on escaped semicolons, e.g. within "\;ext="
-        return `(\\s*(?<!\\\\)(?:${escapedSep})\\s*)`;
-    }
-    if (sep === ',') {
-        // Don't split on commas followed by ",ext" or ", ext"
-        return `(\\s*(?:${escapedSep})(?!\\s*ext)\\s*)`;
-    }
-
-    return `(\\s*${escapedSep}\\s*)`;
-}).join('|');
+export const spaceOptionalGroupsDin = createSpaceOptionalGroups(SEPARATOR_OPTIONAL_SPACE_DIN);
 
 export const needSpacesGroups = SEPARATOR_NEED_SPACE.map(sep => {
     const escapedSep = escapeRegex(sep);
