@@ -25,10 +25,16 @@ const presetsData = JSON.parse(
 const allPresets = {};
 
 /**
- * An index of presets grouped by the tag keys they require.
+ * An index of presets grouped by the tag keys they require, specifically for wildcard (*) values.
  * @type {Object<string, Set<object>>}
  */
 const presetsByTagKey = {};
+
+/**
+ * An index of presets grouped by both their required tag key and exact value.
+ * @type {Object<string, Object<string, Set<object>>>}
+ */
+const presetsByTagKeyValue = {};
 
 /**
  * A list of presets that have no required tags.
@@ -40,15 +46,27 @@ for (const key in presetsData) {
     const preset = { ...presetsData[key], id: key };
     allPresets[key] = preset;
 
-    const tagKeys = Object.keys(preset.tags || {});
+    const tags = preset.tags || {};
+    const tagKeys = Object.keys(tags);
     if (tagKeys.length === 0) {
         universalPresets.push(preset);
     } else {
         for (const tagKey of tagKeys) {
-            if (!presetsByTagKey[tagKey]) {
-                presetsByTagKey[tagKey] = new Set();
+            const tagValue = tags[tagKey];
+            if (tagValue === '*') {
+                if (!presetsByTagKey[tagKey]) {
+                    presetsByTagKey[tagKey] = new Set();
+                }
+                presetsByTagKey[tagKey].add(preset);
+            } else {
+                if (!presetsByTagKeyValue[tagKey]) {
+                    presetsByTagKeyValue[tagKey] = {};
+                }
+                if (!presetsByTagKeyValue[tagKey][tagValue]) {
+                    presetsByTagKeyValue[tagKey][tagValue] = new Set();
+                }
+                presetsByTagKeyValue[tagKey][tagValue].add(preset);
             }
-            presetsByTagKey[tagKey].add(preset);
         }
     }
 }
@@ -216,12 +234,22 @@ export function getBestPreset(item, locale = 'en') {
     if (isMocking) {
         presetsToTest = Object.values(global.getMockPresets());
     } else {
-        // Optimization: Only test presets that have at least one matching tag key
+        // Optimization: Only test presets that have at least one matching tag key or key-value pair
         // plus any universal presets that have no required tags.
         const candidatePresets = new Set(universalPresets);
         for (const tagKey in item.allTags) {
+            const tagValue = item.allTags[tagKey];
+
+            // Add presets that match this key with a wildcard (*)
             if (presetsByTagKey[tagKey]) {
                 for (const preset of presetsByTagKey[tagKey]) {
+                    candidatePresets.add(preset);
+                }
+            }
+
+            // Add presets that match this key with this specific value
+            if (presetsByTagKeyValue[tagKey] && presetsByTagKeyValue[tagKey][tagValue]) {
+                for (const preset of presetsByTagKeyValue[tagKey][tagValue]) {
                     candidatePresets.add(preset);
                 }
             }
