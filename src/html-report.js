@@ -48,7 +48,7 @@ export function createJosmFixUrl(item) {
     }
 
     const josmFixBaseUrl = 'http://127.0.0.1:8111/load_object';
-    const josmEditUrl = `${josmFixBaseUrl}?objects=${item.type[0]}${item.id}&relation_members=true`;
+    const josmEditUrl = `${josmFixBaseUrl}?objects=${encodeURIComponent(item.type[0])}${encodeURIComponent(item.id)}&relation_members=true`;
 
     const encodedTags = Object.entries(item.suggestedFixes).map(([key, value]) => {
         const encodedKey = encodeURIComponent(key);
@@ -94,7 +94,7 @@ function createPhoneForeignFixRows(item, locale, iconManager) {
             }
 
             return {
-                [key]: foreignRows.join(';'),
+                [escapeHTML(key)]: foreignRows.join(';'),
             };
         })
         .filter(Boolean);
@@ -163,8 +163,8 @@ export function createPhoneFixRows(item, locale, countryCode) {
             if (isDuplicateKey && item.duplicateNumbers[key] === key) {
                 const { oldDiff, newDiff } = getPhoneDiffHtml(originalNumber, suggestedFix);
                 return {
-                    [key]: `<span class="list-item-old-value">${oldDiff}${duplicateLabel}</span>`,
-                    [suggestedRowKey]: newDiff,
+                    [escapeHTML(key)]: `<span class="list-item-old-value">${oldDiff}${duplicateLabel}</span>`,
+                    [escapeHTML(suggestedRowKey)]: newDiff,
                 };
             }
 
@@ -192,25 +192,25 @@ export function createPhoneFixRows(item, locale, countryCode) {
                         item.suggestedFixes[tagToUse]
                     );
                     return {
-                        [key]: originalRowValue,
-                        [suggestedRowKey]: newDiff,
+                        [escapeHTML(key)]: originalRowValue,
+                        [escapeHTML(suggestedRowKey)]: newDiff,
                         [newTagDiff]: newMovingDiff,
                     };
                 }
 
                 return {
-                    [key]: originalRowValue,
-                    [suggestedRowKey]: newDiff,
+                    [escapeHTML(key)]: originalRowValue,
+                    [escapeHTML(suggestedRowKey)]: newDiff,
                 };
             } else if (isDuplicateKey) {
                 const { oldDiff } = getPhoneDiffHtml(originalNumber, suggestedFix);
                 return {
-                    [key]: `<span class="list-item-old-value">${oldDiff}${duplicateLabel}</span>`,
+                    [escapeHTML(key)]: `<span class="list-item-old-value">${oldDiff}${duplicateLabel}</span>`,
                 };
             } else if (isMismatchKey && !numberMovingToEmptyTag) {
                 const { oldDiff } = getPhoneDiffHtml(originalNumber, suggestedFix);
                 return {
-                    [key]: `<span class="list-item-old-value">${oldDiff}${notMobileLabel}</span>`,
+                    [escapeHTML(key)]: `<span class="list-item-old-value">${oldDiff}${notMobileLabel}</span>`,
                 };
             } else if (item.autoFixable) {
                 // Mobile is being moved to standard key, which did not exist before
@@ -223,7 +223,7 @@ export function createPhoneFixRows(item, locale, countryCode) {
                     };
                 }
                 return {
-                    [key]: `<span>${escapeHTML(originalNumber)}</span>`,
+                    [escapeHTML(key)]: `<span>${escapeHTML(originalNumber)}</span>`,
                 };
             } else {
                 const lengthProblemText = getLengthProblemText(originalNumber, locale, countryCode);
@@ -231,7 +231,7 @@ export function createPhoneFixRows(item, locale, countryCode) {
                     ? `<span class="label label-number-problem">${lengthProblemText}</span>`
                     : '';
                 return {
-                    [key]: `<span>${escapeHTML(originalNumber)}${lengthProblemLabel}</span>`,
+                    [escapeHTML(key)]: `<span>${escapeHTML(originalNumber)}${lengthProblemLabel}</span>`,
                 };
             }
         })
@@ -246,7 +246,7 @@ export function createPhoneFixRows(item, locale, countryCode) {
  */
 function createNameFixRows(item, locale) {
     const escapedNameTags = Object.fromEntries(
-        Object.entries(item.nameTags).map(([key, value]) => [key, escapeHTML(value)])
+        Object.entries(item.nameTags).map(([key, value]) => [escapeHTML(key), escapeHTML(value)])
     );
     return [
         {
@@ -273,12 +273,12 @@ function createHoursFixRows(item, locale) {
                 const { oldDiff, newDiff } = getHoursDiffHtml(originalValue, suggestedFix);
 
                 return {
-                    [key]: oldDiff,
-                    [suggestedRowKey]: newDiff,
+                    [escapeHTML(key)]: oldDiff,
+                    [escapeHTML(suggestedRowKey)]: newDiff,
                 };
             } else {
                 return {
-                    [key]: escapeHTML(originalValue),
+                    [escapeHTML(key)]: escapeHTML(originalValue),
                 };
             }
         })
