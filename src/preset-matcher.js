@@ -26,9 +26,16 @@ const allPresets = {};
 
 /**
  * An index of presets grouped by the tag keys they require.
+ * This is primarily used for presets with wildcard values ('*').
  * @type {Object<string, Set<object>>}
  */
 const presetsByTagKey = {};
+
+/**
+ * An index of presets grouped by a combined 'key=value' string for exact matches.
+ * @type {Object<string, Set<object>>}
+ */
+const presetsByTagKeyValue = {};
 
 /**
  * A list of presets that have no required tags.
@@ -45,10 +52,20 @@ for (const key in presetsData) {
         universalPresets.push(preset);
     } else {
         for (const tagKey of tagKeys) {
-            if (!presetsByTagKey[tagKey]) {
-                presetsByTagKey[tagKey] = new Set();
+            const tagValue = preset.tags[tagKey];
+
+            if (tagValue === '*') {
+                if (!presetsByTagKey[tagKey]) {
+                    presetsByTagKey[tagKey] = new Set();
+                }
+                presetsByTagKey[tagKey].add(preset);
+            } else {
+                const combinedKey = `${tagKey}=${tagValue}`;
+                if (!presetsByTagKeyValue[combinedKey]) {
+                    presetsByTagKeyValue[combinedKey] = new Set();
+                }
+                presetsByTagKeyValue[combinedKey].add(preset);
             }
-            presetsByTagKey[tagKey].add(preset);
         }
     }
 }
@@ -218,10 +235,22 @@ export function getBestPreset(item, locale = 'en') {
     } else {
         // Optimization: Only test presets that have at least one matching tag key
         // plus any universal presets that have no required tags.
+        // We check both exact 'key=value' matches and wildcard 'key' matches.
         const candidatePresets = new Set(universalPresets);
         for (const tagKey in item.allTags) {
+            const tagValue = item.allTags[tagKey];
+
+            // Add presets that match this key with a wildcard
             if (presetsByTagKey[tagKey]) {
                 for (const preset of presetsByTagKey[tagKey]) {
+                    candidatePresets.add(preset);
+                }
+            }
+
+            // Add presets that match this specific key=value pair
+            const combinedKey = `${tagKey}=${tagValue}`;
+            if (presetsByTagKeyValue[combinedKey]) {
+                for (const preset of presetsByTagKeyValue[combinedKey]) {
                     candidatePresets.add(preset);
                 }
             }
