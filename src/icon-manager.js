@@ -33,7 +33,7 @@ export class IconManager {
         const defaultViewBox = '0 0 15 15';
 
         for (const [iconName, data] of this.iconSvgData.entries()) {
-            const viewBox = data.viewBox || defaultViewBox;
+            const viewBox = escapeHTML(data.viewBox || defaultViewBox);
             const cleanContent = iconName.startsWith('Flagpedia')
                 ? data.content
                 : data.content

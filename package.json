@@ -54,5 +54,8 @@
         "osmium": ">=1.18.0"
     },
     "author": "confusedbuffalo",
-    "license": "GNU GPL v3.0"
+    "license": "GNU GPL v3.0",
+    "dependencies": {
+        "playwright": "^1.60.0"
+    }
 }
