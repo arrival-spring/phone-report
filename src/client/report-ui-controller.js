@@ -323,13 +323,7 @@ function renderPaginatedSection(
 
     const currentSortKey = sortKey[filterType];
 
-    const getSortStyle = key => {
-        if (currentSortKey === key) {
-            return 'sort-btn-style-active';
-        } else {
-            return 'sort-btn-style-inactive';
-        }
-    };
+    const getSortStyle = key => (currentSortKey === key ? 'sort-btn-style-active' : 'sort-btn-style-inactive');
 
     const pageControls =
         totalItems > pageSize
@@ -355,47 +349,7 @@ function renderPaginatedSection(
 
     const saveRow = createSaveRow();
 
-    let sortButtonLayout;
-
-    if (reportType === 'phone' && filterType === 'fixable') {
-        sortButtonLayout = [
-            { style: 'name', label: 'name' },
-            { style: 'fixable', label: 'suggestedFix' },
-            { style: 'invalid', label: 'invalidNumber' },
-        ];
-    } else if (reportType === 'phone' && filterType === 'foreign') {
-        sortButtonLayout = [
-            { style: 'name', label: 'name' },
-            { style: 'date', label: 'date' },
-            { style: 'foreign', label: 'phoneNumber' },
-        ];
-    } else if (reportType === 'phone') {
-        //invalid phone
-        sortButtonLayout = [
-            { style: 'name', label: 'name' },
-            { style: 'date', label: 'date' },
-            { style: 'invalid', label: 'invalidNumber' },
-        ];
-    } else if (reportType === 'hours' && filterType === 'fixable') {
-        sortButtonLayout = [
-            { style: 'name', label: 'name' },
-            { style: 'fixable', label: 'suggestedFix' },
-            { style: 'invalid', label: 'invalidHours' },
-        ];
-    } else if (reportType === 'hours') {
-        // invalid hours
-        sortButtonLayout = [
-            { style: 'name', label: 'name' },
-            { style: 'date', label: 'date' },
-            { style: 'invalid', label: 'invalidHours' },
-        ];
-    } else {
-        // name
-        sortButtonLayout = [
-            { style: 'name', label: 'name' },
-            { style: 'date', label: 'date' },
-        ];
-    }
+    const sortButtonLayout = getSortButtonLayout(reportType, filterType);
 
     const sortControlContainer = sortButtonLayout
         .map(
@@ -901,25 +855,76 @@ export function disableRedo() {
 }
 
 /**
+ * Determines the layout of sort buttons based on the report and filter types.
+ * @param {string} reportType - The type of report (e.g., 'phone', 'hours', 'name').
+ * @param {string} filterType - The category of items being filtered (e.g., 'fixable', 'invalid', 'foreign').
+ * @returns {Array<Object>} An array of objects defining sort button styles and labels.
+ */
+function getSortButtonLayout(reportType, filterType) {
+    if (reportType === 'phone' && filterType === 'fixable') {
+        return [
+            { style: 'name', label: 'name' },
+            { style: 'fixable', label: 'suggestedFix' },
+            { style: 'invalid', label: 'invalidNumber' },
+        ];
+    }
+    if (reportType === 'phone' && filterType === 'foreign') {
+        return [
+            { style: 'name', label: 'name' },
+            { style: 'date', label: 'date' },
+            { style: 'foreign', label: 'phoneNumber' },
+        ];
+    }
+    if (reportType === 'phone') {
+        // invalid phone
+        return [
+            { style: 'name', label: 'name' },
+            { style: 'date', label: 'date' },
+            { style: 'invalid', label: 'invalidNumber' },
+        ];
+    }
+    if (reportType === 'hours' && filterType === 'fixable') {
+        return [
+            { style: 'name', label: 'name' },
+            { style: 'fixable', label: 'suggestedFix' },
+            { style: 'invalid', label: 'invalidHours' },
+        ];
+    }
+    if (reportType === 'hours') {
+        // invalid hours
+        return [
+            { style: 'name', label: 'name' },
+            { style: 'date', label: 'date' },
+            { style: 'invalid', label: 'invalidHours' },
+        ];
+    }
+    // name
+    return [
+        { style: 'name', label: 'name' },
+        { style: 'date', label: 'date' },
+    ];
+}
+
+/**
  * Applies the disabled visual and functional state to a gray-style button element.
- * @param {HTMLElement} selector - The button element to disable.
+ * @param {HTMLElement} element - The button element to disable.
  * @returns {void}
  */
-function disableGrayBtn(selector) {
-    selector.classList.remove('gray-btn-enabled');
-    selector.classList.add('gray-btn-disabled');
-    selector.disabled = true;
+function disableGrayBtn(element) {
+    element.classList.remove('gray-btn-enabled');
+    element.classList.add('gray-btn-disabled');
+    element.disabled = true;
 }
 
 /**
  * Applies the enabled visual and functional state to a gray-style button element.
- * @param {HTMLElement} selector - The button element to enable.
+ * @param {HTMLElement} element - The button element to enable.
  * @returns {void}
  */
-function enableGrayBtn(selector) {
-    selector.classList.remove('gray-btn-disabled');
-    selector.classList.add('gray-btn-enabled');
-    selector.disabled = false;
+function enableGrayBtn(element) {
+    element.classList.remove('gray-btn-disabled');
+    element.classList.add('gray-btn-enabled');
+    element.disabled = false;
 }
 
 /**
