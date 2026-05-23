@@ -23,8 +23,37 @@ const presetsData = JSON.parse(
  * @type {Object<string, object>}
  */
 const allPresets = {};
+const presetsByTagKeyValue = new Map(); // Map<"key=value", Set<preset>>
+const presetsByTagKey = new Map(); // Map<"key", Set<preset>>
+const presetsWithNoTags = new Set();
+
 for (const key in presetsData) {
-    allPresets[key] = { ...presetsData[key], id: key };
+    const preset = { ...presetsData[key], id: key };
+    allPresets[key] = preset;
+
+    const tags = preset.tags || {};
+    const tagKeys = Object.keys(tags);
+
+    if (tagKeys.length === 0) {
+        presetsWithNoTags.add(preset);
+    } else {
+        for (const tagKey in tags) {
+            const tagValue = tags[tagKey];
+
+            if (tagValue === '*') {
+                if (!presetsByTagKey.has(tagKey)) {
+                    presetsByTagKey.set(tagKey, new Set());
+                }
+                presetsByTagKey.get(tagKey).add(preset);
+            } else {
+                const keyValue = `${tagKey}=${tagValue}`;
+                if (!presetsByTagKeyValue.has(keyValue)) {
+                    presetsByTagKeyValue.set(keyValue, new Set());
+                }
+                presetsByTagKeyValue.get(keyValue).add(preset);
+            }
+        }
+    }
 }
 
 /**
@@ -184,18 +213,47 @@ export function getBestPreset(item, locale = 'en') {
     let maxScore = -1;
 
     // Use globally injected mock presets for testing, or the real presets otherwise.
-    const presetsToTest =
-        typeof global !== 'undefined' && typeof global.getMockPresets === 'function'
-            ? global.getMockPresets()
-            : allPresets;
+    const mockPresets =
+        typeof global !== 'undefined' && typeof global.getMockPresets === 'function' ? global.getMockPresets() : null;
 
-    for (const id in presetsToTest) {
-        const preset = presetsToTest[id];
+    if (mockPresets) {
+        for (const id in mockPresets) {
+            const preset = mockPresets[id];
+            const score = getMatchScore(preset, item.allTags, geometry);
+            if (score > maxScore) {
+                maxScore = score;
+                bestPreset = preset;
+            }
+        }
+    } else {
+        const candidates = new Set(presetsWithNoTags);
 
-        const score = getMatchScore(preset, item.allTags, geometry);
-        if (score > maxScore) {
-            maxScore = score;
-            bestPreset = preset;
+        for (const tagKey in item.allTags) {
+            const tagValue = item.allTags[tagKey];
+
+            // Match exact tag values
+            const exactMatches = presetsByTagKeyValue.get(`${tagKey}=${tagValue}`);
+            if (exactMatches) {
+                for (const preset of exactMatches) {
+                    candidates.add(preset);
+                }
+            }
+
+            // Match wildcard tag values
+            const wildcardMatches = presetsByTagKey.get(tagKey);
+            if (wildcardMatches) {
+                for (const preset of wildcardMatches) {
+                    candidates.add(preset);
+                }
+            }
+        }
+
+        for (const preset of candidates) {
+            const score = getMatchScore(preset, item.allTags, geometry);
+            if (score > maxScore) {
+                maxScore = score;
+                bestPreset = preset;
+            }
         }
     }
 
