@@ -507,17 +507,20 @@ export function getPhoneDiffHtml(oldString, newString) {
 
     let useDinSeparators = false;
     let splitRegex = UNIVERSAL_SPLIT_CAPTURE_REGEX;
+
+    let countryCode = null;
+    try {
+        const phoneNumber = parsePhoneNumber(newString);
+        countryCode = phoneNumber.country;
+    } catch {
+        // ignore
+    }
+
     if (oldString.includes('/')) {
-        try {
-            phoneNumber = parsePhoneNumber(newString);
-            countryCode = phoneNumber.country;
-            if (isSlashSpace(oldString, countryCode)) {
-                splitRegex = UNIVERSAL_SPLIT_CAPTURE_REGEX_DIN;
-                useDinSeparators = true;
-                // DIN does not consider '/' as separator
-            }
-        } catch {
-            // Error parsing number, stick with default split regex
+        if (isSlashSpace(oldString, countryCode)) {
+            splitRegex = UNIVERSAL_SPLIT_CAPTURE_REGEX_DIN;
+            useDinSeparators = true;
+            // DIN does not consider '/' as separator
         }
     }
 
@@ -525,10 +528,21 @@ export function getPhoneDiffHtml(oldString, newString) {
         ? oldStringCleaned.split(/(;)/gi)
         : oldStringCleaned.split(splitRegex);
 
+    const oldPartsWithSlashSplit = [];
+    const isWhatsapp = isWhatsappUrl(oldString);
+    for (const part of oldPartsUnfiltered) {
+        if (part === undefined) continue;
+        if (!isWhatsapp && part.includes('/') && /\d/.test(part) && !isSlashSpace(part, countryCode)) {
+            oldPartsWithSlashSplit.push(...part.split(/(\s*\/\s*)/g));
+        } else {
+            oldPartsWithSlashSplit.push(part);
+        }
+    }
+
     // Filter out falsey values (undefined from capturing groups) and empty strings
     // Remove consecutive separators, e.g. '//'
     const oldParts = mergeConsecutiveSeparators(
-        oldPartsUnfiltered.filter(s => s && s.trim().length > 0),
+        oldPartsWithSlashSplit.filter(s => s && s.trim().length > 0),
         useDinSeparators
     );
 
@@ -553,7 +567,8 @@ export function getPhoneDiffHtml(oldString, newString) {
         consolidatedOldParts.length === 3 && // num1, separator, num2
         consolidatedNewParts.length === 1 &&
         /\d/.test(consolidatedOldParts[0]) &&
-        /\d/.test(consolidatedOldParts[2])
+        /\d/.test(consolidatedOldParts[2]) &&
+        !consolidatedOldParts[1].includes('/')
     ) {
         // More robust checking and comparison would be possible
         // However, most common case is two numbers, one being removed
