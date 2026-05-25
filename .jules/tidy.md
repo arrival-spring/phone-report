@@ -1,0 +1,3 @@
+- Recurring Smell: Duplicated `localStorage` access for the 'edits' key across multiple client-side modules.
+- Refactor: Centralized all access via `getEdits()` and `saveEdits(edits)` in `src/client/report-storage.js`.
+- Bug Fix: Corrected an issue in `report-ui-controller.js` where `editCount` logic was incorrectly accessing properties on object keys (strings) rather than the edit objects themselves. Consolidated this counting logic into `getEditCounts(subdivision)`.

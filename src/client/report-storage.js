@@ -15,6 +15,59 @@ import {
 import { reportType, subdivisionName, storageKey } from './config.js';
 
 /**
+ * Retrieves the 'edits' object from localStorage.
+ * @returns {Object} The parsed edits object, or an empty object if not found or invalid.
+ */
+export function getEdits() {
+    try {
+        return JSON.parse(localStorage.getItem('edits')) || {};
+    } catch (e) {
+        console.error('Could not parse edits from localStorage:', e);
+        return {};
+    }
+}
+
+/**
+ * Saves the 'edits' object to localStorage.
+ * @param {Object} edits - The edits object to save.
+ */
+export function saveEdits(edits) {
+    try {
+        localStorage.setItem('edits', JSON.stringify(edits));
+    } catch (e) {
+        console.error('Could not save edits to localStorage:', e);
+    }
+}
+
+/**
+ * Calculates the number of pending edits for a given subdivision,
+ * categorized by total, invalid (incomplete names/phone/hours), and missing (names).
+ * @param {string} subdivision - The name of the subdivision.
+ * @returns {{total: number, invalid: number, missing: number}}
+ */
+export function getEditCounts(subdivision) {
+    const edits = getEdits();
+    const counts = { total: 0, invalid: 0, missing: 0 };
+
+    if (edits[subdivision]) {
+        for (const type in edits[subdivision]) {
+            const items = edits[subdivision][type];
+            const ids = Object.keys(items);
+            counts.total += ids.length;
+            ids.forEach(id => {
+                const edit = items[id];
+                if (edit.name !== undefined) {
+                    counts.missing++;
+                } else {
+                    counts.invalid++;
+                }
+            });
+        }
+    }
+    return counts;
+}
+
+/**
  * Adds an item's ID to localStorage to mark it as clicked.
  * @param {string} itemId - The unique ID of the item (e.g., "way/12345").
  */
@@ -111,7 +164,7 @@ export function saveSettings() {
  * @returns {void}
  */
 export function moveEditsToUploadedStorage() {
-    let edits = JSON.parse(localStorage.getItem('edits')) || {};
+    let edits = getEdits();
     let uploadedChanges = JSON.parse(localStorage.getItem(UPLOADED_ITEMS_KEY));
 
     if (uploadedChanges && uploadedChanges[subdivisionName]) {
@@ -130,7 +183,7 @@ export function moveEditsToUploadedStorage() {
 
     localStorage.setItem(UPLOADED_ITEMS_KEY, JSON.stringify(uploadedChanges));
     delete edits[subdivisionName];
-    localStorage.setItem('edits', JSON.stringify(edits));
+    saveEdits(edits);
 }
 
 /**
@@ -139,7 +192,7 @@ export function moveEditsToUploadedStorage() {
  * @returns {void}
  */
 export function discardEdits() {
-    let edits = JSON.parse(localStorage.getItem('edits'));
+    let edits = getEdits();
     if (edits[subdivisionName]) {
         for (const osmType in edits[subdivisionName]) {
             for (const osmIdStr in edits[subdivisionName][osmType]) {
@@ -149,7 +202,7 @@ export function discardEdits() {
         }
 
         delete edits[subdivisionName];
-        localStorage.setItem('edits', JSON.stringify(edits));
+        saveEdits(edits);
 
         localStorage.removeItem(`undoPosition_${subdivisionName}`);
         localStorage.removeItem(`undoStack_${subdivisionName}`);
@@ -198,7 +251,7 @@ function persistUndoState() {
  * @returns {void}
  */
 function saveChangeToStorage(osmType, osmId, language = null) {
-    let edits = JSON.parse(localStorage.getItem('edits')) || {};
+    let edits = getEdits();
     if (!edits[subdivisionName]) {
         edits[subdivisionName] = {};
     }
@@ -212,7 +265,7 @@ function saveChangeToStorage(osmType, osmId, language = null) {
 
     edits[subdivisionName][osmType][osmId] = getSuggestedFix(item, language);
 
-    localStorage.setItem('edits', JSON.stringify(edits));
+    saveEdits(edits);
     addToUndo(osmType, osmId, language);
     setUpSaveBtn();
 }
@@ -279,7 +332,7 @@ export function undoChange() {
         enableRedo();
     }
 
-    let edits = JSON.parse(localStorage.getItem('edits')) || {};
+    let edits = getEdits();
     const undoneElement = undoData.stack[undoData.position];
     const osmType = undoneElement[0];
     const osmId = undoneElement[1];
@@ -287,7 +340,7 @@ export function undoChange() {
     delete edits[subdivisionName][osmType][osmId];
     clearItemClick(`${osmType}/${osmId}`);
 
-    localStorage.setItem('edits', JSON.stringify(edits));
+    saveEdits(edits);
     setUpSaveBtn();
     persistUndoState();
 
@@ -314,7 +367,7 @@ export function redoChange() {
         return item.id === osmId && item.type === osmType;
     });
 
-    let edits = JSON.parse(localStorage.getItem('edits')) || {};
+    let edits = getEdits();
     edits[subdivisionName][osmType][osmId] = getSuggestedFix(item, language);
 
     recordItemClick(`${osmType}/${osmId}`);
@@ -323,7 +376,7 @@ export function redoChange() {
     setUpUndoRedoBtns();
     persistUndoState();
 
-    localStorage.setItem('edits', JSON.stringify(edits));
+    saveEdits(edits);
     setUpSaveBtn();
     transitionRemoveItem(osmType, osmId);
 }
