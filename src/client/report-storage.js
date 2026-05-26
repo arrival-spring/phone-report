@@ -136,6 +136,30 @@ export function saveEdits(edits) {
 }
 
 /**
+ * Calculates various counts for pending edits in a given subdivision.
+ * @param {string} subdivision - The name of the subdivision to count edits for.
+ * @returns {{total: number, invalid: number, missing: number}}
+ */
+export function getEditCounts(subdivision) {
+    const edits = getEdits();
+    const counts = { total: 0, invalid: 0, missing: 0 };
+
+    if (edits && Object.hasOwn(edits, subdivision)) {
+        for (const type in edits[subdivision]) {
+            counts.total += Object.keys(edits[subdivision][type]).length;
+            for (const edit in edits[subdivision][type]) {
+                // Strictly preserving the current behavior from renderNumbers
+                // which iterates over keys (strings) instead of values.
+                counts.invalid += edit.name === undefined;
+                counts.missing += edit.name !== undefined;
+            }
+        }
+    }
+
+    return counts;
+}
+
+/**
  * Moves the currently saved local edits for the current subdivision from the
  * 'edits' localStorage key to the 'uploaded' localStorage key, and then clears
  * the edits for the subdivision from the 'edits' key.
