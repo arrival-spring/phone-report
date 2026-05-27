@@ -146,12 +146,15 @@ export function getEditCounts(subdivision) {
 
     if (edits && Object.hasOwn(edits, subdivision)) {
         for (const type in edits[subdivision]) {
-            counts.total += Object.keys(edits[subdivision][type]).length;
-            for (const edit in edits[subdivision][type]) {
-                // Strictly preserving the current behavior from renderNumbers
-                // which iterates over keys (strings) instead of values.
-                counts.invalid += edit.name === undefined;
-                counts.missing += edit.name !== undefined;
+            const editItems = Object.values(edits[subdivision][type]);
+            counts.total += editItems.length;
+
+            for (const edit of editItems) {
+                if (edit.name !== undefined) {
+                    counts.missing++;
+                } else {
+                    counts.invalid++;
+                }
             }
         }
     }
