@@ -40,7 +40,7 @@ export async function validateNames(elementStream, countryCode, tmpFilePath) {
     let isFirstItem = true;
 
     let totalCount = 0;
-    let incompleteNames = 0;
+    let invalidCount = 0;
     let missingNamesCount = 0;
 
     for await (const element of elementStream) {
@@ -104,7 +104,7 @@ export async function validateNames(elementStream, countryCode, tmpFilePath) {
         if (!primaryName) missingNamesCount++;
 
         if (isInvalid) {
-            incompleteNames++;
+            invalidCount++;
             const item = {
                 ...createBaseItem(element),
                 nameTags,
@@ -132,5 +132,5 @@ export async function validateNames(elementStream, countryCode, tmpFilePath) {
 
     await new Promise(resolve => fileStream.on('finish', resolve));
 
-    return { totalCount, invalidCount: incompleteNames, missingNamesCount };
+    return { totalCount, invalidCount, missingNamesCount };
 }
