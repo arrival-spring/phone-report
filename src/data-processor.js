@@ -213,3 +213,17 @@ export function createBaseItem(element) {
         allTags: tags,
     };
 }
+
+/**
+ * A replacer function for JSON.stringify to handle Map objects by converting
+ * them to plain objects.
+ * @param {string} _key - The key being stringified.
+ * @param {*} value - The value being stringified.
+ * @returns {*} The value to be stringified.
+ */
+export function mapReplacer(_key, value) {
+    if (value instanceof Map) {
+        return Object.fromEntries(value);
+    }
+    return value;
+}
