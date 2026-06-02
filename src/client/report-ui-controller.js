@@ -829,8 +829,7 @@ export function applyEditorVisibility() {
  * @returns {void}
  */
 export function enableSave() {
-    const saveBtn = document.getElementById('save-btn');
-    enableGrayBtn(saveBtn);
+    setButtonState('save-btn', true);
 }
 
 /**
@@ -838,10 +837,7 @@ export function enableSave() {
  * @returns {void}
  */
 function disableSave() {
-    const saveBtn = document.getElementById('save-btn');
-    if (saveBtn) {
-        disableGrayBtn(saveBtn);
-    }
+    setButtonState('save-btn', false);
 }
 
 /**
@@ -849,10 +845,7 @@ function disableSave() {
  * @returns {void}
  */
 export function enableUndo() {
-    const undoBtn = document.getElementById('undo-btn');
-    if (undoBtn) {
-        enableGrayBtn(undoBtn);
-    }
+    setButtonState('undo-btn', true);
 }
 
 /**
@@ -860,10 +853,7 @@ export function enableUndo() {
  * @returns {void}
  */
 export function disableUndo() {
-    const undoBtn = document.getElementById('undo-btn');
-    if (undoBtn) {
-        disableGrayBtn(undoBtn);
-    }
+    setButtonState('undo-btn', false);
 }
 
 /**
@@ -871,10 +861,7 @@ export function disableUndo() {
  * @returns {void}
  */
 export function enableRedo() {
-    const redoBtn = document.getElementById('redo-btn');
-    if (redoBtn) {
-        enableGrayBtn(redoBtn);
-    }
+    setButtonState('redo-btn', true);
 }
 
 /**
@@ -882,9 +869,22 @@ export function enableRedo() {
  * @returns {void}
  */
 export function disableRedo() {
-    const redoBtn = document.getElementById('redo-btn');
-    if (redoBtn) {
-        disableGrayBtn(redoBtn);
+    setButtonState('redo-btn', false);
+}
+
+/**
+ * Sets the enabled or disabled state of a button by its ID.
+ * @param {string} id - The ID of the button element.
+ * @param {boolean} enabled - Whether to enable or disable the button.
+ */
+function setButtonState(id, enabled) {
+    const element = document.getElementById(id);
+    if (element) {
+        if (enabled) {
+            enableGrayBtn(element);
+        } else {
+            disableGrayBtn(element);
+        }
     }
 }
 
@@ -920,13 +920,8 @@ export function setUpSaveBtn() {
     if (!saveBtn) return;
     const editCount = getEditCounts(subdivisionName);
 
-    if (editCount.total > 0) {
-        enableSave();
-        saveBtn.innerText = `Save ${editCount.total}`;
-    } else {
-        disableSave();
-        saveBtn.innerText = `Save`;
-    }
+    setButtonState('save-btn', editCount.total > 0);
+    saveBtn.innerText = editCount.total > 0 ? `Save ${editCount.total}` : `Save`;
 }
 
 /**
@@ -935,16 +930,8 @@ export function setUpSaveBtn() {
  * @returns {void}
  */
 export function setUpUndoRedoBtns() {
-    if (undoData.position === 0) {
-        disableUndo();
-    } else {
-        enableUndo();
-    }
-    if (undoData.position < undoData.stack.length) {
-        enableRedo();
-    } else {
-        disableRedo();
-    }
+    setButtonState('undo-btn', undoData.position > 0);
+    setButtonState('redo-btn', undoData.position < undoData.stack.length);
 }
 
 /**
