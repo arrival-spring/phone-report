@@ -41,9 +41,6 @@ const VALIDATORS = {
 const controller = new AbortController();
 const { signal } = controller;
 
-let failedDownloadCount = 0;
-const FAILED_DOWNLOAD_THRESHOLD = 10;
-
 /**
  * Substitute any missing translations with default locale translation.
  * @param {Object} fullTranslations - The complete dictionary for a locale.
@@ -290,11 +287,50 @@ function parseOsmTimestamp(timestampStr) {
 async function processSubdivision(subdivision, reportType, countryData, rawDivisionName, clientTranslations) {
     const countryName = countryData.name;
 
+    const subdivisionSlug = safeName(subdivision.name);
+    const divisionSlug = safeName(rawDivisionName);
+
     const geojsonPath = path.join(OSM_DIR, reportType, `${subdivision.id}.geojsonseq`);
+    let geojsonExists = true;
     try {
         await access(geojsonPath);
     } catch {
-        console.error(`Error: File not found at ${geojsonPath}`);
+        geojsonExists = false;
+    }
+
+    if (!geojsonExists) {
+        console.log(`PBF data not downloaded for ${subdivision.name}. Checking for cached build fallback...`);
+        const relativePath = subdivisionSlug === safeName(countryName) || divisionSlug === subdivisionSlug
+            ? path.join(safeName(countryName), `${subdivisionSlug}.json`)
+            : path.join(safeName(countryName), divisionSlug, `${subdivisionSlug}.json`);
+        const fallbackJsonPath = path.join(BUILD_DIR, reportType, relativePath);
+
+        if (fs.existsSync(fallbackJsonPath)) {
+            try {
+                const historyCountryDir = path.join(HISTORY_DIR, reportType, safeName(countryName));
+                if (fs.existsSync(historyCountryDir)) {
+                    const historyFiles = fs
+                        .readdirSync(historyCountryDir)
+                        .filter(f => f.endsWith('.json'))
+                        .sort((a, b) => b.localeCompare(a));
+                    if (historyFiles.length > 0) {
+                        const lastHistory = JSON.parse(fs.readFileSync(path.join(historyCountryDir, historyFiles[0]), 'utf8'));
+                        const allPrevDivs = Object.values(lastHistory.groupedDivisionStats || {}).flat();
+                        const matchingPrev = allPrevDivs.find(
+                            div => div.divisionSlug === divisionSlug && div.slug === subdivisionSlug
+                        );
+                        if (matchingPrev) {
+                            console.log(`${reportType}: Using cached build & history fallback for ${subdivision.name}`);
+                            return { ...matchingPrev };
+                        }
+                    }
+                }
+            } catch (fallbackErr) {
+                console.error(`Failed to load history fallback for ${subdivision.name}:`, fallbackErr);
+            }
+        }
+
+        console.error(`Error: File not found at ${geojsonPath} and no fallback available.`);
         return {};
     }
 
@@ -452,16 +488,8 @@ async function processCountry(countryData) {
         } catch (error) {
             if (axios.isCancel(error)) return;
 
-            failedDownloadCount++;
-            console.error(`Skipping country ${countryName} due to download failure: ${error?.message || error}`);
-
-            if (failedDownloadCount >= FAILED_DOWNLOAD_THRESHOLD) {
-                console.error(`Threshold of ${FAILED_DOWNLOAD_THRESHOLD} failed downloads reached. Aborting process.`);
-                controller.abort(); // Cancels all pending requests
-                process.exit(1);
-            }
-
-            return null;
+            console.error(`Skipping fresh download for country ${countryName} due to download failure: ${error?.message || error}`);
+            // Individual subdivisions will fall back to previous run's built artifacts if available
         } finally {
             downloaded.dispose?.();
         }
@@ -494,18 +522,10 @@ async function processCountry(countryData) {
                 } catch (error) {
                     if (axios.isCancel(error)) return;
 
-                    failedDownloadCount++;
                     console.error(
-                        `Skipping subdivision ${subdivisionName} due to download failure: ${error?.message || error}`
+                        `Skipping fresh download for subdivision ${subdivisionName} due to download failure: ${error?.message || error}`
                     );
-
-                    if (failedDownloadCount >= FAILED_DOWNLOAD_THRESHOLD) {
-                        console.error(
-                            `Threshold of ${FAILED_DOWNLOAD_THRESHOLD} failed downloads reached. Aborting process.`
-                        );
-                        controller.abort(); // Cancels all pending requests
-                        process.exit(1);
-                    }
+                    // Subdivision processing will fall back to previous run's built artifacts if available
                 } finally {
                     downloaded.dispose?.();
                 }
