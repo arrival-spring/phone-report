@@ -41,6 +41,38 @@ const VALIDATORS = {
 const controller = new AbortController();
 const { signal } = controller;
 
+const SERVER_FAILURE_THRESHOLD = 5;
+const serverFailureCounts = new Map();
+
+function getServerHostname(urlStr) {
+    try {
+        return new URL(urlStr).hostname;
+    } catch {
+        return null;
+    }
+}
+
+function shouldSkipDownload(pbfUrl) {
+    if (!pbfUrl) return false;
+    const hostname = getServerHostname(pbfUrl);
+    if (!hostname) return false;
+    const count = serverFailureCounts.get(hostname) || 0;
+    return count >= SERVER_FAILURE_THRESHOLD;
+}
+
+function recordDownloadFailure(pbfUrl) {
+    if (!pbfUrl) return;
+    const hostname = getServerHostname(pbfUrl);
+    if (!hostname) return;
+    const count = (serverFailureCounts.get(hostname) || 0) + 1;
+    serverFailureCounts.set(hostname, count);
+    if (count >= SERVER_FAILURE_THRESHOLD) {
+        console.warn(
+            `Server ${hostname} reached threshold of ${SERVER_FAILURE_THRESHOLD} download failures. Skipping further downloads from this server.`
+        );
+    }
+}
+
 /**
  * Substitute any missing translations with default locale translation.
  * @param {Object} fullTranslations - The complete dictionary for a locale.
@@ -470,28 +502,37 @@ async function processCountry(countryData) {
     const divisions = countryData.divisions ? { [countryData.name]: countryData.divisions } : countryData.divisionMap;
 
     if (countryData.pbfUrl) {
-        let downloaded = {};
+        if (shouldSkipDownload(countryData.pbfUrl)) {
+            console.warn(
+                `Skipping country ${countryName} download because server ${getServerHostname(countryData.pbfUrl)} reached failure threshold.`
+            );
+        } else {
+            let downloaded = {};
 
-        try {
-            downloaded = await downloadPbf(countryData.pbfUrl, signal);
+            try {
+                downloaded = await downloadPbf(countryData.pbfUrl, signal);
 
-            for (const reportType of REPORT_TYPES) {
-                const tmpReportPbfFilePath = path.join(process.cwd(), `filtered-${reportType}-${uuidv4()}.osm.pbf`);
-                await filterPbf(downloaded.path, tmpReportPbfFilePath, reportType);
-                await splitPbf(tmpReportPbfFilePath, path.join(OSM_DIR, reportType), countryData);
+                for (const reportType of REPORT_TYPES) {
+                    const tmpReportPbfFilePath = path.join(process.cwd(), `filtered-${reportType}-${uuidv4()}.osm.pbf`);
+                    await filterPbf(downloaded.path, tmpReportPbfFilePath, reportType);
+                    await splitPbf(tmpReportPbfFilePath, path.join(OSM_DIR, reportType), countryData);
 
-                fs.rmSync(tmpReportPbfFilePath, { force: true });
+                    fs.rmSync(tmpReportPbfFilePath, { force: true });
+                }
+
+                const dataTimestamp = await getOsmTimestamp(countryData.pbfUrl);
+                countryData.timestamp = dataTimestamp;
+            } catch (error) {
+                if (axios.isCancel(error)) return;
+
+                recordDownloadFailure(countryData.pbfUrl);
+                console.error(
+                    `Skipping fresh download for country ${countryName} due to download failure: ${error?.message || error}`
+                );
+                // Individual subdivisions will fall back to previous run's built artifacts if available
+            } finally {
+                downloaded.dispose?.();
             }
-
-            const dataTimestamp = await getOsmTimestamp(countryData.pbfUrl);
-            countryData.timestamp = dataTimestamp;
-        } catch (error) {
-            if (axios.isCancel(error)) return;
-
-            console.error(`Skipping fresh download for country ${countryName} due to download failure: ${error?.message || error}`);
-            // Individual subdivisions will fall back to previous run's built artifacts if available
-        } finally {
-            downloaded.dispose?.();
         }
     }
 
@@ -499,6 +540,13 @@ async function processCountry(countryData) {
         Object.entries(groupDivisions)
             .filter(([, subData]) => typeof subData === 'object' && subData.pbfUrl)
             .map(([subdivisionName, subData]) => async () => {
+                if (shouldSkipDownload(subData.pbfUrl)) {
+                    console.warn(
+                        `Skipping subdivision ${subdivisionName} download because server ${getServerHostname(subData.pbfUrl)} reached failure threshold.`
+                    );
+                    return;
+                }
+
                 let downloaded = {};
 
                 try {
@@ -522,6 +570,7 @@ async function processCountry(countryData) {
                 } catch (error) {
                     if (axios.isCancel(error)) return;
 
+                    recordDownloadFailure(subData.pbfUrl);
                     console.error(
                         `Skipping fresh download for subdivision ${subdivisionName} due to download failure: ${error?.message || error}`
                     );
