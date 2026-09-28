@@ -94,6 +94,8 @@
     "missingNames": "Saknade namn",
     "missingNamesDescription": "Alla dessa har ett språkspecifikt namn, men har inget huvudnamn angivet. Troligen bör ett av de språkspecifika namnen användas som huvudnamn, i vilket fall knapparna kan användas för att lägga till det som namn.",
     "incompleteNamesDescription": "Alla dessa har språkspecifika namn, men inget av dem matchar huvudnamnet. Detta kan bero på att den specifika språktaggen saknas, i vilket fall knapparna kan användas för att kopiera namnet till rätt språktagg.",
+    "mismatchNamesHeader": "Icke-överensstämmande namn",
+    "mismatchNamesDescription": "Alla dessa har ett namn på ett vanligt språk i denna region, men det matchar inte den primära namntaggen. Detta kan bero på att endast ett av dessa ändrades och det andra inte uppdaterades samtidigt.",
     "incompleteNamesOutOf": "{incomplete} ofullständiga namn av {total}",
     "noIncompleteNames": "Inga ofullständiga namn hittades i denna underindelning.",
     "duplicateNameTo": "Duplicera namn till:",

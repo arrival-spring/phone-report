@@ -94,6 +94,8 @@
     "missingNames": "Nama Hilang",
     "missingNamesDescription": "Semua data ini memiliki nama spesifik bahasa, tetapi nama utamanya belum ditentukan. Kemungkinan salah satu nama spesifik bahasa tersebut harus digunakan sebagai nama utama, yang dalam hal ini tombol dapat digunakan untuk menambahkannya sebagai nama utama.",
     "incompleteNamesDescription": "Semua data ini memiliki nama spesifik bahasa, tetapi tidak ada yang cocok dengan nama utama. Ini mungkin terjadi karena tag bahasa spesifiknya hilang, yang dalam hal ini tombol dapat digunakan untuk menyalin nama ke tag bahasa yang benar.",
+    "mismatchNamesHeader": "Nama Tidak Cocok",
+    "mismatchNamesDescription": "Semua data ini memiliki nama dalam bahasa umum di wilayah ini tetapi tidak cocok dengan tag nama utama. Ini mungkin terjadi karena hanya salah satu dari nama ini yang diubah dan yang lainnya tidak diperbarui pada saat yang sama.",
     "incompleteNamesOutOf": "{incomplete} nama tidak lengkap dari {total}",
     "noIncompleteNames": "Tidak ditemukan nama tidak lengkap di wilayah ini.",
     "duplicateNameTo": "Rangkap nama ke:",

@@ -94,6 +94,8 @@
     "missingNames": "Missing Names",
     "missingNamesDescription": "All of these have a language-specific name, but do not have a main name specified. Probably one of the language-specific names should be used as the primary name, in which case the buttons can be used to add that as the name.",
     "incompleteNamesDescription": "All of these have language-specific names, but none of them match the primary name. This may be because the specific language tag is missing, in which case the buttons can be used to copy the name to the correct language tag.",
+    "mismatchNamesHeader": "Mismatching names",
+    "mismatchNamesDescription": "All of these have a name in a common language in this state but it does not match the primary name tag. This may be because only one of these got changed and the other was not updated at the same time.",
     "incompleteNamesOutOf": "{incomplete} incomplete names out of {total}",
     "noIncompleteNames": "No incomplete names found in this state.",
     "duplicateNameTo": "Duplicate name to:",

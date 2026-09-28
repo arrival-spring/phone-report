@@ -94,6 +94,8 @@
     "missingNames": "Manglende navne",
     "missingNamesDescription": "Alle disse har et sprogspecifikt navn, men har ikke et angivet primært navn. Sandsynligvis bør et af de sprogspecifikke navne bruges som det primære navn, i hvilket tilfælde knapperne kan bruges til at tilføje det som navnet.",
     "incompleteNamesDescription": "Alle disse har sprogspecifikke navne, men ingen af dem matcher det primære navn. Dette kan skyldes, at det specifikke sprogtag mangler, i hvilket tilfælde knapperne kan bruges til at kopiere navnet til det korrekte sprogtag.",
+    "mismatchNamesHeader": "Uoverensstemmende navne",
+    "mismatchNamesDescription": "Alle disse har et navn på et almindeligt sprog i denne region, men det svarer ikke til det primære navnetag. Dette kan skyldes, at kun et af disse blev ændret, og det andet ikke blev opdateret samtidig.",
     "incompleteNamesOutOf": "{incomplete} ufuldstændige navne ud af {total}",
     "noIncompleteNames": "Ingen ufuldstændige navne fundet i denne underinddeling.",
     "duplicateNameTo": "Duplikér navn til:",

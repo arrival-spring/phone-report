@@ -94,6 +94,8 @@
     "missingNames": "Noms manquants",
     "missingNamesDescription": "Tous ceux-ci ont un nom spécifique à une langue, mais n'ont pas de nom principal spécifié. Probablement l'un des noms spécifiques à une langue devrait être utilisé comme nom principal, auquel cas les boutons peuvent être utilisés pour l'ajouter comme nom.",
     "incompleteNamesDescription": "Tous ceux-ci ont des noms spécifiques à une langue, mais aucun ne correspond au nom principal. Cela peut être dû au fait que l'étiquette de langue spécifique est manquante, auquel cas les boutons peuvent être utilisés pour copier le nom vers l'étiquette de langue correcte.",
+    "mismatchNamesHeader": "Noms ne correspondant pas",
+    "mismatchNamesDescription": "Tous ces éléments ont un nom dans une langue courante de cette région, mais il ne correspond pas à l'étiquette de nom principal. Cela peut être dû au fait qu'un seul d'entre eux a été modifié et que l'autre n'a pas été mis à jour en même temps.",
     "incompleteNamesOutOf": "{incomplete} noms incomplets sur {total}",
     "noIncompleteNames": "Aucun nom incomplet trouvé dans cette région.",
     "duplicateNameTo": "Dupliquer le nom vers :",

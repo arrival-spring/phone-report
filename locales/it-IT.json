@@ -94,6 +94,8 @@
     "missingNames": "Nomi mancanti",
     "missingNamesDescription": "Tutti questi hanno un nome specifico per la lingua, ma non hanno un nome principale specificato. Probabilmente uno dei nomi specifici per la lingua dovrebbe essere usato come nome principale, nel qual caso i pulsanti possono essere usati per aggiungerlo come nome.",
     "incompleteNamesDescription": "Tutti questi hanno nomi specifici per la lingua, ma nessuno di essi corrisponde al nome principale. Ciò potrebbe essere dovuto al fatto che manca il tag della lingua specifico, nel qual caso i pulsanti possono essere usati per copiare il nome nel tag della lingua corretto.",
+    "mismatchNamesHeader": "Nomi non corrispondenti",
+    "mismatchNamesDescription": "Tutti questi hanno un nome in una lingua comune in questa regione, ma non corrisponde al tag del nome principale. Ciò potrebbe essere dovuto al fatto che solo uno di questi è stato modificato e l'altro non è stato aggiornato contemporaneamente.",
     "incompleteNamesOutOf": "{incomplete} nomi incompleti su {total}",
     "noIncompleteNames": "Nessun nome incompleto trovato in questa suddivisione.",
     "duplicateNameTo": "Duplica nome in:",

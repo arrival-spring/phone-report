@@ -94,6 +94,8 @@
     "missingNames": "Fehlende Namen",
     "missingNamesDescription": "Alle diese haben einen sprachspezifischen Namen, aber keinen Hauptnamen. Wahrscheinlich sollte einer der sprachspezifischen Namen als Primärname verwendet werden. In diesem Fall können die Schaltflächen verwendet werden, um diesen als Namen hinzuzufügen.",
     "incompleteNamesDescription": "Alle diese haben sprachspezifische Namen, aber keiner davon entspricht dem Primärnamen. Dies kann daran liegen, dass das spezifische Sprach-Tag fehlt. In diesem Fall können die Schaltflächen verwendet werden, um den Namen in das richtige Sprach-Tag zu kopieren.",
+    "mismatchNamesHeader": "Nicht übereinstimmende Namen",
+    "mismatchNamesDescription": "Alle diese Elemente haben einen Namen in einer in dieser Region gebräuchlichen Sprache, der jedoch nicht mit dem primären Namenstag übereinstimmt. Dies kann daran liegen, dass nur einer von diesen geändert wurde und der andere nicht gleichzeitig aktualisiert wurde.",
     "incompleteNamesOutOf": "{incomplete} unvollständige Namen von insgesamt {total}",
     "noIncompleteNames": "In diesem Bereich wurden keine unvollständigen Namen gefunden.",
     "duplicateNameTo": "Name duplizieren nach:",

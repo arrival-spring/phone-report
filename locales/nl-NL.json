@@ -94,6 +94,8 @@
     "missingNames": "Ontbrekende namen",
     "missingNamesDescription": "Al deze items hebben een taalspecifieke naam, maar er is geen hoofdnaam opgegeven. Waarschijnlijk moet een van de taalspecifieke namen als hoofdnaam worden gebruikt, in welk geval de knoppen kunnen worden gebruikt om die als naam toe te voegen.",
     "incompleteNamesDescription": "Al deze items hebben taalspecifieke namen, maar geen daarvan komt overeen met de hoofdnaam. Dit kan komen doordat de specifieke taaltag ontbreekt, in welk geval de knoppen kunnen worden gebruikt om de naam naar de juiste taaltag te kopiëren.",
+    "mismatchNamesHeader": "Niet-overeenkomende namen",
+    "mismatchNamesDescription": "Al deze items hebben een naam in een veelvoorkomende taal in deze regio, maar deze komt niet overeen met de primaire naamtag. Dit kan komen doordat er slechts één is gewijzigd en de andere niet tegelijkertijd is bijgewerkt.",
     "incompleteNamesOutOf": "{incomplete} onvolledige namen van {total}",
     "noIncompleteNames": "Geen onvolledige namen gevonden in deze onderverdeling.",
     "duplicateNameTo": "Naam kopiëren naar:",

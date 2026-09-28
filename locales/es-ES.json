@@ -94,6 +94,8 @@
     "missingNames": "Nombres faltantes",
     "missingNamesDescription": "Todos estos tienen un nombre específico de idioma, pero no tienen un nombre principal especificado. Probablemente uno de los nombres específicos de idioma debería usarse como el nombre principal, en cuyo caso los botones se pueden usar para agregarlo como el nombre.",
     "incompleteNamesDescription": "Todos estos tienen nombres específicos de idioma, pero ninguno de ellos coincide con el nombre principal. Esto puede deberse a que falta la etiqueta de idioma específica, en cuyo caso los botones se pueden usar para copiar el nombre a la etiqueta de idioma correcta.",
+    "mismatchNamesHeader": "Nombres no coincidentes",
+    "mismatchNamesDescription": "Todos estos tienen un nombre en un idioma común en esta región, pero no coincide con la etiqueta de nombre principal. Esto puede deberse a que solo uno de ellos cambió y el otro no se actualizó al mismo tiempo.",
     "incompleteNamesOutOf": "{incomplete} nombres incompletos de {total}",
     "noIncompleteNames": "No se encontraron nombres incompletos en esta subdivisión.",
     "duplicateNameTo": "Duplicar nombre a:",

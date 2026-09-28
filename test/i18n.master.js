@@ -67,6 +67,8 @@ export const MASTER_KEYS = {
     missingNames: [],
     missingNamesDescription: [],
     incompleteNamesDescription: [],
+    mismatchNamesHeader: [],
+    mismatchNamesDescription: [],
     osmIncompleteNamesValidation: [],
     reportSubtitleNames: [],
     noIncompleteNames: [],

@@ -94,6 +94,8 @@
     "missingNames": "Brakujące nazwy",
     "missingNamesDescription": "Wszystkie te elementy mają nazwę specyficzną dla języka, ale nie mają określonej nazwy głównej. Prawdopodobnie jedna z nazw specyficznych dla języka powinna zostać użyta jako nazwa główna, w którym to przypadku przyciski mogą zostać użyte do dodania jej jako nazwy.",
     "incompleteNamesDescription": "Wszystkie te elementy mają nazwy specyficzne dla języka, ale żadna z nich nie pasuje do nazwy głównej. Może to być spowodowane brakiem określonego tagu językowego, w którym to przypadku przyciski mogą zostać użyte do skopiowania nazwy do właściwego tagu językowego.",
+    "mismatchNamesHeader": "Niezgodne nazwy",
+    "mismatchNamesDescription": "Wszystkie te elementy mają nazwę w powszechnym języku w tym regionie, ale nie pasuje ona do głównego tagu nazwy. Może to wynikać z faktu, że tylko jedna z nich została zmieniona, a druga nie została w tym samym czasie zaktualizowana.",
     "incompleteNamesOutOf": "{incomplete} niekompletnych nazw z {total}",
     "noIncompleteNames": "Nie znaleziono niekompletnych nazw w tej podjednostce.",
     "duplicateNameTo": "Duplikuj nazwę do:",

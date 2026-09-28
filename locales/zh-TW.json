@@ -94,6 +94,8 @@
     "missingNames": "缺失名稱",
     "missingNamesDescription": "這些都有特定語言的名稱，但沒有指定主要名稱。可能應該使用其中一個特定語言的名稱作為主要名稱，在這種情況下可以使用按鈕將其添加為名稱。",
     "incompleteNamesDescription": "這些都有特定語言的名稱，但沒有一個與主要名稱匹配。這可能是因為缺少特定的語言標籤，在這種情況下可以使用按鈕將名稱複製到正確的語言標籤。",
+    "mismatchNamesHeader": "不匹配的名稱",
+    "mismatchNamesDescription": "這些在該地區都有常用語言的名稱，但與主要名稱標籤不匹配。這可能是因為只有其中一個被修改，而另一個沒有同時更新。",
     "incompleteNamesOutOf": "{total} 個名稱中有 {incomplete} 個不完整",
     "noIncompleteNames": "在此行政區劃中未發現不完整的名稱。",
     "duplicateNameTo": "複製名稱到：",
