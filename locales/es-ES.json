@@ -116,5 +116,7 @@
     "overlappingRules": "Reglas superpuestas",
     "noInvalidHours": "No se encontraron horarios de apertura no válidos en esta subdivisión.",
     "ambiguousHours": "Horas de un solo dígito ambiguas",
-    "noDays": "No se han especificado días"
+    "noDays": "No se especifican días",
+    "badTagsHeader": "Etiquetas dudosas",
+    "badTagsDescription": "Estas parecen etiquetas de números de teléfono, pero han utilizado etiquetas no estándar. Tal vez se puedan mover a una etiqueta estándar, o tal vez ya no sean válidas."
 }

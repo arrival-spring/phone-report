@@ -116,5 +116,7 @@
     "overlappingRules": "重疊規則",
     "noInvalidHours": "在此行政區劃中未發現無效的營業時間。",
     "ambiguousHours": "含糊的個位數小時",
-    "noDays": "未指定日期"
+    "noDays": "未指定日期",
+    "badTagsHeader": "有疑問的標籤",
+    "badTagsDescription": "這些看起來像是電話號碼標籤，但使用了非標準標籤。也許可以將它們移動到標準標籤，或者它們可能不再有效。"
 }

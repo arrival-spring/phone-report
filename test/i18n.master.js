@@ -60,6 +60,8 @@ export const MASTER_KEYS = {
     fixableNumbersDescription: [],
     invalidNumbersDescription: [],
     foreignNumbersDescription: [],
+    badTagsHeader: [],
+    badTagsDescription: [],
     phoneNumber: [],
     incompleteNamesReport: [],
     multilingualNames: [],

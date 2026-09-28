@@ -116,5 +116,7 @@
     "overlappingRules": "Overlapping rules",
     "noInvalidHours": "No invalid opening hours found in this subdivision.",
     "ambiguousHours": "Ambiguous single-digit hours",
-    "noDays": "No days specified"
+    "noDays": "No days specified",
+    "badTagsHeader": "Twijfelachtige tags",
+    "badTagsDescription": "Deze lijken op telefoonnummertags, maar maken gebruik van niet-standaard tags. Misschien kunnen ze worden verplaatst naar een standaardtag, of zijn ze niet langer geldig."
 }

@@ -116,5 +116,7 @@
     "overlappingRules": "Règles se chevauchant",
     "noInvalidHours": "Aucun horaire d'ouverture invalide trouvé dans cette région.",
     "ambiguousHours": "Heures à un seul chiffre ambiguës",
-    "noDays": "Aucun jour spécifié"
+    "noDays": "Aucun jour spécifié",
+    "badTagsHeader": "Tags douteux",
+    "badTagsDescription": "Ceux-ci ressemblent à des tags de numéro de téléphone, mais utilisent des tags non standard. Ils peuvent peut-être être déplacés vers un tag standard, ou ne sont peut-être plus valides."
 }

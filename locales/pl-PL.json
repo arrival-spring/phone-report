@@ -116,5 +116,7 @@
     "overlappingRules": "Nakładające się reguły",
     "noInvalidHours": "Nie znaleziono nieprawidłowych godzin otwarcia w tej podjednostce.",
     "ambiguousHours": "Dwuznaczne godziny jednocyfrowe",
-    "noDays": "Nie określono dni"
+    "noDays": "Nie określono dni",
+    "badTagsHeader": "Podejrzane tagi",
+    "badTagsDescription": "Wyglądają jak tagi numerów telefonów, ale używają niestandardowych tagów. Być może można je przenieść do standardowego tagu lub być może nie są już ważne."
 }
