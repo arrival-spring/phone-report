@@ -176,6 +176,7 @@ function applyEditsToFeatureTags(feature, elementEdits) {
 
     for (const key in elementEdits) {
         if (Object.hasOwn(elementEdits, key)) {
+            if (key.startsWith('_')) continue;
             const value = elementEdits[key];
 
             // If any of the target tags have changed, make no changes
@@ -515,7 +516,11 @@ export async function updateFeatures(items) {
                 compareTags(osmFeature, originalItem)
             ) {
                 changedItems[type] ??= {};
-                changedItems[type][osmFeature.id] = { changed: true };
+                changedItems[type][osmFeature.id] = {
+                    changed: true,
+                    _autoFixable: originalItem.autoFixable,
+                    _isMissingName: !originalItem.name,
+                };
             }
         }
     }

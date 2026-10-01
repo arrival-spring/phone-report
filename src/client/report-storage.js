@@ -264,15 +264,29 @@ export function saveChangeToStorage(osmType, osmId, language = null, newKeyValue
         edits[subdivisionName][osmType] = {};
     }
 
-    if (newKeyValue) {
-        edits[subdivisionName][osmType][osmId] = newKeyValue;
-    } else {
-        const item = appState.reportData.find(item => {
-            return item.id === osmId && item.type === osmType;
-        });
+    const item = appState.reportData?.find(item => {
+        return item.id === osmId && item.type === osmType;
+    });
 
-        edits[subdivisionName][osmType][osmId] = getSuggestedFix(item, language);
+    let editObj;
+    if (newKeyValue) {
+        editObj = { ...newKeyValue };
+    } else if (item) {
+        editObj = { ...getSuggestedFix(item, language) };
+    } else {
+        editObj = {};
     }
+
+    if (item) {
+        if (item.autoFixable !== undefined) {
+            editObj._autoFixable = item.autoFixable;
+        }
+        if (!item.name) {
+            editObj._isMissingName = true;
+        }
+    }
+
+    edits[subdivisionName][osmType][osmId] = editObj;
 
     saveEdits(edits);
     addToUndo(osmType, osmId, language);
