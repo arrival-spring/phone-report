@@ -111,9 +111,7 @@ async function downloadAndParseOfficialLanguages() {
  * @param {'phone' | 'name' | 'hours'} reportType - The type of report to generate history for.
  * @param {Object} originalCountryStats - The statistics for the country, included groupedDivisionStats.
  */
-function saveCountryHistory(reportType, originalCountryStats) {
-    const countryStats = structuredClone(originalCountryStats);
-
+function saveCountryHistory(reportType, countryStats) {
     const rootDir = path.join(HISTORY_DIR, reportType);
 
     const historyCountryDir = path.join(rootDir, countryStats.slug);

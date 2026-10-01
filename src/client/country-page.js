@@ -55,7 +55,7 @@ function formatNumber(num) {
 
 const calculatedDivisionTotals = {};
 
-function applyUploadedChanges() {
+export function applyUploadedChanges() {
     // Recalculate totals, subtracting edits made locally
     const uploadedChanges = JSON.parse(localStorage.getItem(UPLOADED_ITEMS_KEY));
     if (uploadedChanges) {
@@ -65,13 +65,39 @@ function applyUploadedChanges() {
 
                 if (!subdivisionUploaded) return;
 
-                const subdivisionUploadedCount = Object.values(subdivisionUploaded).reduce(
-                    (sum, type) => sum + Object.keys(type || {}).length,
-                    0
-                );
+                let uploadedInvalidCount = 0;
+                let uploadedFixableCount = 0;
+                let uploadedMissingCount = 0;
 
-                stat.invalidCount = Math.max(0, stat.invalidCount - subdivisionUploadedCount);
-                stat.autoFixableCount = Math.max(0, stat.autoFixableCount - subdivisionUploadedCount);
+                for (const type in subdivisionUploaded) {
+                    const editsForType = subdivisionUploaded[type] || {};
+                    for (const editObj of Object.values(editsForType)) {
+                        if (reportType === 'name') {
+                            if (editObj?._isMissingName || (editObj && Object.hasOwn(editObj, 'name'))) {
+                                uploadedMissingCount++;
+                            } else {
+                                uploadedInvalidCount++;
+                            }
+                        } else {
+                            uploadedInvalidCount++;
+                            if (editObj?._autoFixable || editObj?.autoFixable || editObj?.suggestedFixes) {
+                                uploadedFixableCount++;
+                            }
+                        }
+                    }
+                }
+
+                if (reportType === 'name') {
+                    stat.invalidCount = Math.max(0, stat.invalidCount - uploadedInvalidCount);
+                    if (stat.missingNamesCount !== undefined) {
+                        stat.missingNamesCount = Math.max(0, stat.missingNamesCount - uploadedMissingCount);
+                    }
+                } else {
+                    stat.invalidCount = Math.max(0, stat.invalidCount - uploadedInvalidCount);
+                    if (stat.autoFixableCount !== undefined) {
+                        stat.autoFixableCount = Math.max(0, stat.autoFixableCount - uploadedFixableCount);
+                    }
+                }
             });
         }
     }
